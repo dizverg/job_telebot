@@ -1,0 +1,5 @@
+aiogram
+sqlalchemy
+pyvalidator
+psycopg2
+inflection
