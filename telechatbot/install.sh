@@ -1,2 +1,2 @@
 #!/bin/bash
-sudo apt-get install -y libpq-dev
+sudo apt install -y libpq-dev python3.9-dev

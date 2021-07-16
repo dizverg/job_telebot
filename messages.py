@@ -29,95 +29,29 @@ MESSAGES = {
     'bad_answer': bad_answer_message,
 }
 
-profile_dialog_config = {
-    'questions': {
-        'county': {
-            'text': 'Выберите страну',
-            'type': 'select_one',
-            'category': 'country',
-        },
-        'city': {
-            'text': 'Укажите ваш город',
-            'type': 'select_one_or_type',
-            'category': 'city',
-        },
-        'birthday': {
-            'text': 'Укажите дату вашего рождения в формате ДД.ММ.ГГГГ',
-            'type': 'date'
-        },
-        'yes_no_cancel': {
-            'text': 'Да, нет или отмена?',
-            'type': 'select_one',
-            'category': 'yes_no_cancel',
-        },
-        'pet_name': {
-            'text': 'Как зовут вашего питомца?',
-            'type': '*',
-        },
-        'yes_no': {
-            'text': 'Да, нет?',
-            'type': 'select_one',
-            'variants': ['yes', 'no_cancel'],
-        }
-    },
-    'order': ['pet_name', 'yes_no_cancel', 'county', 'yes_no',
-              # 'birthday'
-              ],
-    # 'order': ['yes_no_cancel', 'city'],
-    'state': DialogState.profile_wait_for_answer
-}
 
-board_dialog_config = {
+create_vacanse_dialog_config = {
     'questions': {
-        'model': {
-            'text': 'Какая у вас модель автомобиля?',
-            'type': 'select_one_or_type',
-            'category': 'auto_model',
+        'photo': {
+            'text': 'Фото',
+            'type': 'image',
         },
-        'year': {
-            'text': 'Какого года автомобиль?',
-            'type': 'int',
+        'discription': {
+            'text': 'Опишите вакансию',
+            'variants': ['Закончить с описанием'],
         },
-        'fuel_type': {
-            'text': 'На каком топливе работает двигатель?',
-            'type': 'select_one',
-            'category': 'fuel_type',
-        },
-        'yes_no': {
-            'text': 'Да или нет?',
-            'type': 'select_one',
-            'category': 'yes_no',
+        'questions': {
+            'text': 'Задайте вопрос соискателю',
+            'variants': ['Достаточно вопросов'],
+            'array': True,
         }
     },
     'order': ['yes_no', 'model', 'year', 'fuel_type'],
     'state': DialogState.board_wait_for_answer
 }
 
-manuals_dialog_config = {
-    'questions': {
-        'model': {
-            'text': 'О каком модели пост?',
-            'type': 'select_one_or_type',
-            'category': 'auto_model',
-        },
-        'year': {
-            'text': 'Какого года автомобиль?',
-            'type': 'int',
-        },
-        'fuel_type': {
-            'text': 'На каком топливе работает двигатель?',
-            'type': 'select_one',
-            'category': 'fuel_type',
-        }
-    },
-    'order': ['model', 'year', 'fuel_type'],
-    'state': DialogState.manuals_wait_for_answer
-}
-
 DIALOGS = {
-    'profile': profile_dialog_config,
-    'board': board_dialog_config,
-    'manuals': manuals_dialog_config
+    'create_vacanse': create_vacanse_dialog_config,
 }
 
 
@@ -142,4 +76,16 @@ MENU = {
         }
     }
 
+}
+
+
+MENU2 = {
+        'Публикация': {
+            'Опубликованные': list_published,
+            'Неопубликованные': list_not_published,
+            'Опубликовать': publish,
+        },
+        'HR': {
+            'Соискатели в ожидании': list_waiting_applicants,
+        }
 }
