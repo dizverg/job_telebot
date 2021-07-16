@@ -4,7 +4,7 @@ from sqlalchemy.sql.elements import BinaryExpression
 from sqlalchemy import Column
 from sqlalchemy.dialects.postgresql import UUID
 
-from db import Base, Session
+from telechatbot.db import Base, Session
 
 
 class BaseModel(Base):

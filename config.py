@@ -5,16 +5,32 @@ LOG = {'format': "%(asctime)s - [%(levelname)s] - %(name)s - "
        'level': logging.INFO}
 
 
-class DB:
+class DB_PG:
     filename = 'job_telebot.db'
     db_name = 'job_telebot'
     user = 'postgres'
-    password = 'lid7Ohch3e'
+    password = 'lid7Oadsh'
     host = 'localhost'
     port = None
     dialect_plus_driver = 'postgresql+psycopg2'
 
+    @classmethod
+    def get_db_url(cls):
+        return f"{cls.dialect_plus_driver}://{cls.user}" \
+            f"{f':{cls.password}' if cls.password else ''}@" \
+            f"{cls.host}{f':{cls.port}' if cls.port else ''}/{cls.db_name}"
 
-DB_URL = f"{DB.dialect_plus_driver}://{DB.user}" \
-         f"{f':{DB.password}' if DB.password else ''}@" \
-         f"{DB.host}{f':{DB.port}' if DB.port else ''}/{DB.db_name}"
+
+class DB_SQLite:
+    filename = ':memory'
+    dialect_plus_driver = 'sqlite'
+
+    @classmethod
+    def get_db_url(cls):
+        return f"{DB.dialect_plus_driver}:///{cls.filename}"
+
+
+DB = DB_PG
+DB_URL = DB.get_db_url()
+print(DB_URL)
+
