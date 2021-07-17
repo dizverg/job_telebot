@@ -3,7 +3,7 @@ from messages import MAIN_MENU
 from aiogram.utils import executor
 
 from config import LOG
-from telechatbot.bot_dispatcher import dispatcher as dp
+from lib_telechatbot.bot_dispatcher import dispatcher as dp
 
 logging.basicConfig(**LOG)
 

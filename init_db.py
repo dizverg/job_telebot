@@ -1,7 +1,7 @@
 from models.Applicant import Applicant
 from models.Vacanse import Vacanse
 from models.UserList import UserList
-from telechatbot.db import Base, engine
+from lib_telechatbot.db import Base, engine
 from models import Category, CategoryItem
 
 

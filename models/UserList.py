@@ -1,6 +1,6 @@
 from sqlalchemy import Column, String, Boolean
 
-from telechatbot.models.abstract_BaseModelWithTelegam import BaseModelWithTelegram
+from lib_telechatbot.models.abstract_BaseModelWithTelegam import BaseModelWithTelegram
 
 
 class UserList(BaseModelWithTelegram):

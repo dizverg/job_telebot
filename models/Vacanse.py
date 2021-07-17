@@ -1,7 +1,7 @@
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 
-from telechatbot.models.abstract_BaseModelWithTelegam import BaseModelWithTelegram
+from lib_telechatbot.models.abstract_BaseModelWithTelegam import BaseModelWithTelegram
 from models.UserList import UserList
 
 

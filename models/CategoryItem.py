@@ -1,7 +1,7 @@
 from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from models.Category import Category
-from telechatbot.models.abstract_BaseModel import BaseModel
+from lib_telechatbot.models.abstract_BaseModel import BaseModel
 
 
 class CategoryItem(BaseModel):

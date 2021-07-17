@@ -1,7 +1,7 @@
 from sqlalchemy import Column, String
 
-from telechatbot.db import Session
-from telechatbot.models.abstract_BaseModel import BaseModel
+from lib_telechatbot.db import Session
+from lib_telechatbot.models.abstract_BaseModel import BaseModel
 
 
 class Category(BaseModel):

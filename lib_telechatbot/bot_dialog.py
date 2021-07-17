@@ -8,10 +8,10 @@ from aiogram.utils import executor
 
 from dialog import Dialog
 from messages import DIALOGS, MENU, MESSAGES
-from models import UserList, Board, Tutorial
+from models import UserList
 from states import DialogState
 
-from telechatbot.bot_dispatcher import dp
+from lib_telechatbot.bot_dispatcher import dispatcher as dp
 
 
 async def auth(message: Message, state: FSMContext):
