@@ -6,5 +6,5 @@ from aiogram.dispatcher import Dispatcher
 from private_token import TOKEN
 
 bot = Bot(token=TOKEN)
-dispatcher = Dispatcher(bot, storage=MemoryStorage())
-dispatcher.middleware.setup(LoggingMiddleware())
+bot_dispatcher = Dispatcher(bot, storage=MemoryStorage())
+bot_dispatcher.middleware.setup(LoggingMiddleware())

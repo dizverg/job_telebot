@@ -1,15 +1,17 @@
+from dialogs.publush_dialog import PublishDialog
 import logging
+from main_menu_actions import register_main_menu_handlers
 from messages import MAIN_MENU
 from aiogram.utils import executor
 
 from config import LOG
-from lib_telechatbot.bot_dispatcher import dispatcher as dp
+from lib_telechatbot.bot_dispatcher import bot_dispatcher 
 
 logging.basicConfig(**LOG)
 
-for key, value in MAIN_MENU.items():
-    dp.register_message_handler(value.get("action",None), commands=key)
-
 
 if __name__ == '__main__':
-    executor.start_polling(dp)
+    register_main_menu_handlers()
+    PublishDialog().register_handlers()
+
+    executor.start_polling(bot_dispatcher)

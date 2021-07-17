@@ -1,9 +1,17 @@
+
+from lib_telechatbot.bot_dispatcher import bot_dispatcher
+
 from models.UserList import UserList
 from models import Applicant
 from models.Vacanse import Vacanse
 from aiogram.types import ReplyKeyboardRemove, Message
 from aiogram.dispatcher import FSMContext
 
+def register_main_menu_handlers():
+    from messages import MAIN_MENU
+    for key, value in MAIN_MENU.items():
+        bot_dispatcher.register_message_handler(
+            value.get("action",None), commands=key)
 
 async def list_published(message: Message, state: FSMContext):
     for vacanse in Vacanse.all():
@@ -12,7 +20,9 @@ async def list_published(message: Message, state: FSMContext):
 
 async def publish(message: Message, state: FSMContext):
     user_id = UserList.all()[0].id
-    Vacanse(user_id=user_id).add()
+    # Vacanse(user_id=user_id).add()
+    from dialogs.publush_dialog import PublishDialog
+    await PublishDialog().begin(message, state)
     # TODO run publication dialog
 
 

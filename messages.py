@@ -1,6 +1,6 @@
-from actions import (list_published, list_waiting_applicants,
-                     publish, show_help, show_stat)
-from states import DialogState
+from aiogram.dispatcher.filters.state import State
+from main_menu_actions import (list_published, list_waiting_applicants,
+                               publish, show_help, show_stat)
 
 
 # start_message = 'Let`s go!\n' + help_message
@@ -27,7 +27,7 @@ MAIN_MENU = {
 MESSAGES = {
     # 'start': start_message,
     'help': '\n'.join([f'/{key} -- {value.get("title","")}'
-             for key, value in MAIN_MENU.items()]),
+                       for key, value in MAIN_MENU.items()]),
     # 'invalid_key': invalid_key_message,
     'state_change': state_change_success_message,
     'state_reset': state_reset_message,
@@ -45,16 +45,15 @@ create_vacanse_dialog_config = {
         },
         'discription': {
             'text': 'Опишите вакансию',
-            'variants': ['Закончить с описанием'],
+            'loop_stop_word': 'Закончить с описанием',
         },
         'questions': {
             'text': 'Задайте вопрос соискателю',
-            'variants': ['Достаточно вопросов'],
-            'array': True,
+            'loop_stop_word': 'Достаточно вопросов'
         }
     },
     'order': ['photo', 'discription', 'questions'],
-    'state': DialogState.board_wait_for_answer
+    'state': State()
 }
 
 DIALOGS = {

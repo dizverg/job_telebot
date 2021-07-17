@@ -1,5 +1,4 @@
 import datetime
-from messages import MESSAGES
 from aiogram import types, Dispatcher
 from models import Category, CategoryItem
 
@@ -16,6 +15,8 @@ class Dialog:
     async def check_answer(self, data, message):
         answer = message.text
         if not self.type_check(answer, data):
+            from messages import MESSAGES
+
             await message.answer(MESSAGES['bad_answer'])
             return False
         return True
@@ -28,7 +29,8 @@ class Dialog:
                     'date': lambda: datetime.datetime.strptime(answer,
                                                                '%d.%m.%Y'),
                     'select_one_or_type': lambda: True,
-                    '*': lambda: True
+                    '*': lambda: True,
+                    'image': lambda: True
                     }.get(data.get('type', '*'), False)()
         except:
             return False
@@ -58,29 +60,45 @@ class Dialog:
                 category_id=Category.get_id_by_name(parameter.get('category'))
             ).all()]
 
-        parameter['variants'] = category_variants or parameter.get('variants')
+        keys = category_variants or parameter.get('variants') or []
+        loop_stop_word = parameter.get('loop_stop_word')
+        if loop_stop_word:
+            keys.append(loop_stop_word)
 
-        if parameter['variants']:
+        if keys:
             keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-            keyboard.add(*parameter['variants'])
+            keyboard.add(*keys)
         else:
             keyboard = types.ReplyKeyboardRemove()
 
         await self.dialog_state.set()
         await message.answer(parameter.get('text'), reply_markup=keyboard)
         await Dispatcher.get_current().current_state().update_data(
-            {'current_field': parameter_name, 'dialog': self})
+            {'current_field': parameter_name, 'dialog': self,
+             'loop_stop_word': loop_stop_word})
 
-    async def get_answer(self, message, state, on_finish=None):
+    async def get_answer(self, message: types.Message, state, on_finish=None):
         answer = message.text
         field_name = (await state.get_data()).get('current_field')
+        field_value = (await state.get_data()).get(field_name)
         check_result = await self.check_answer(
             self.get_parameter_by_name(field_name), message)
         if not check_result:
             await self.ask(message=message, parameter_name=field_name)
             return
-        await state.update_data({field_name: answer})
-        next_field = self.get_next(field_name)
+
+        field_value = (field_value if type(field_value) == list
+                       else [field_value] if field_value else [])
+
+        loop_stop_word = (await state.get_data()).get('loop_stop_word')
+        # if not loop_stop_word or loop_stop_word == answer:
+
+        if loop_stop_word != answer:
+            await state.update_data({field_name: field_value + [answer]})
+
+        next_field = (field_name if loop_stop_word and loop_stop_word != answer
+                      else self.get_next(field_name))
+
         if next_field:
             # print(str(await state.get_data()))
             await self.ask(message=message, parameter_name=next_field)
