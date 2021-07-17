@@ -1,6 +1,6 @@
 
 from messages import DIALOGS
-from models import UserList
+from models import UserList, Vacanse
 from aiogram import types
 from aiogram.dispatcher.storage import FSMContext
 from aiogram.types.message import Message
@@ -17,12 +17,13 @@ class PublishDialog(BaseDialog):
         await super().begin(message, state, 'create_vacanse')
 
     async def answer_callback(
-        self, message: Message, state: FSMContext, *arrgs, **kwargs):
+            self, message: Message, state: FSMContext, *arrgs, **kwargs):
         await self.get_answer(message, state, self.finish)
 
     async def finish(self, message: Message, state: FSMContext):
         data = await state.get_data()
         from_user = message.from_user
+
         if data.get('user'):
             user = data.pop('user')
         else:
@@ -42,7 +43,13 @@ class PublishDialog(BaseDialog):
         if user:
             user.update(new_data)
         else:
-            UserList(**new_data).add()
+            user = UserList(**new_data).add()
+
+        Vacanse(image=data.get('image'),
+                discriptions=data.get('discription'), 
+                questions=data.get('questions'), 
+                user_id=user.id).add()
+
         # await message.reply(state)
         from messages import MESSAGES
 

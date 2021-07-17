@@ -47,3 +47,33 @@ class BaseDialog:
                     ).get('dialog')).get_answer(message, state, on_finish)
         except:
             ...
+
+
+    async def finish(self, message: Message, state: FSMContext):
+        data = await state.get_data()
+        from_user = message.from_user
+        if data.get('user'):
+            user = data.pop('user')
+        else:
+            user = None
+
+        if data.get('loop_stop_word'):
+            data.pop('loop_stop_word')
+
+        data.pop('dialog')
+        data.pop('current_field')
+        new_data = {'json': data,
+                    'telegram_id': from_user.id,
+                    'username': from_user.username,
+                    'is_bot': from_user.is_bot,
+                    'language_code': from_user.language_code,
+                    'first_name': from_user.first_name}
+        if user:
+            user.update(new_data)
+        else:
+            UserList(**new_data).add()
+        # await message.reply(state)
+        from messages import MESSAGES
+
+        await message.answer(str(MESSAGES.get('data_saved', '{}')).format(data),
+                             reply_markup=types.ReplyKeyboardRemove())
