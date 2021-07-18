@@ -52,7 +52,7 @@ create_vacanse_dialog_config = {
             'loop_stop_word': 'Достаточно вопросов'
         }
     },
-    'order': ['photo', 'discription', 'questions'],
+    'order': ['discription', 'questions'],
     'state': State()
 }
 

@@ -1,4 +1,5 @@
 
+from aiogram.dispatcher.filters.state import State
 from messages import DIALOGS
 from models import UserList, Vacanse
 from aiogram import types
@@ -45,13 +46,16 @@ class PublishDialog(BaseDialog):
         else:
             user = UserList(**new_data).add()
 
-        Vacanse(image=data.get('image'),
-                discriptions=data.get('discription'), 
-                questions=data.get('questions'), 
-                user_id=user.id).add()
-
         # await message.reply(state)
         from messages import MESSAGES
 
-        await message.answer(str(MESSAGES.get('data_saved', '{}')).format(data),
-                             reply_markup=types.ReplyKeyboardRemove())
+        vacanse = Vacanse(image=data.get('image'),
+                          discriptions=data.get('discription'),
+                          questions=data.get('questions'),
+                          user_id=user.id)
+        await message.answer(
+            vacanse,
+            reply_markup=types.ReplyKeyboardRemove())
+        vacanse.add()
+        state.finish()
+        State().set()

@@ -15,7 +15,7 @@ def register_main_menu_handlers():
 
 async def list_published(message: Message, state: FSMContext):
     for vacanse in Vacanse.all():
-        await message.answer(vacanse.id, reply_markup=ReplyKeyboardRemove())
+        await message.answer(vacanse, reply_markup=ReplyKeyboardRemove())
 
 
 async def publish(message: Message, state: FSMContext):
@@ -28,7 +28,7 @@ async def publish(message: Message, state: FSMContext):
 
 async def list_waiting_applicants(message: Message, state: FSMContext):
     for applicant in Applicant.filter_by(accepted=None).all():
-        await message.answer(applicant.id, reply_markup=ReplyKeyboardRemove())
+        await message.answer(applicant, reply_markup=ReplyKeyboardRemove())
 
 
 async def show_stat(message: Message, state: FSMContext):

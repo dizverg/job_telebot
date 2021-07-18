@@ -9,12 +9,13 @@ from models.UserList import UserList
 class Vacanse(BaseModelWithTelegram):
     __tablename__ = 'vacanse'
     image = Column(BYTEA)
-    discriptions = Column(ARRAY(TEXT, dimensions=1))    
+    discriptions = Column(ARRAY(TEXT, dimensions=1))
     questions = Column(ARRAY(TEXT, dimensions=1))
 
     user_id = Column(
         UUID, ForeignKey(f'{UserList.__tablename__}.id', ondelete='CASCADE'),
         nullable=False, index=True)
 
-
-
+    def __repr__(self):
+        return f"<{self.__class__.__name__}(" \
+               f"id={self.id!r}, discriptions={self.discriptions!r}, questions={self.questions!r})>"
