@@ -26,9 +26,9 @@ class BaseModel(Base):
             session.commit()
             return self.id
 
-    def update(self, data):
+    def update(self, id, data):
         with Session() as session:
-            session.query(self.__class__).update(data)
+            self.filter_by(id=id).update(data)
             session.commit()
             return self.id
 

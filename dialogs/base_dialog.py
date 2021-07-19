@@ -1,6 +1,7 @@
+from aiogram.utils.mixins import DataMixin
 from lib_telechatbot.dialog import Dialog
 
-from aiogram import types
+from aiogram import bot, types
 from aiogram.dispatcher import FSMContext, filters
 from aiogram.types import ContentTypes, Message
 from aiogram.utils import executor
@@ -27,13 +28,35 @@ class BaseDialog:
                               parameter_name=self.dialog.get_first())
 
     async def auth(self, message: Message, state: FSMContext):
-        user = (await state.get_data()).get(
-            'user', await UserList.get_user(message.from_user.id))
-        if user:
-            await state.update_data({'user': user})
-            return user
+        from_user = message.from_user
+        # data = await state.get_data()
+        self.user = self.user or await UserList.get_user(
+            user_telegram_id=from_user.id)
+
+        # excess_fields = {'dialog', 'current_field', 'loop_stop_word', 'user'}
+        # data = dict((k, v) for k, v in data.items() if k not in excess_fields)
+
+        new_data = {
+                    'telegram_id': from_user.id,
+                    'username': from_user.username,
+                    'is_bot': from_user.is_bot,
+                    'language_code': from_user.language_code,
+                    'first_name': from_user.first_name}
+        if self.user:
+            self.user.update(self.user.id, new_data)
+        else:
+            self.user = UserList(**new_data)
+            self.user.add()
+
+        if self.user:
+            await state.update_data({'user': self.user})
+            return self.user
         else:
             return
+
+    async def get_user_id(self, message: Message, state: FSMContext):
+        user = await self.auth(message, state)
+        return user.id if user else None
 
     async def finish_dialog(self, message: Message, state: FSMContext,
                             *args, **kwargs):
@@ -41,39 +64,17 @@ class BaseDialog:
                              reply_markup=(types.ReplyKeyboardRemove()))
 
     async def get_answer(
-        self, message: Message, state: FSMContext, on_finish=None):
+            self, message: Message, state: FSMContext, on_finish=None):
         try:
             await ((await state.get_data()
                     ).get('dialog')).get_answer(message, state, on_finish)
         except:
             ...
 
-
     async def finish(self, message: Message, state: FSMContext):
-        data = await state.get_data()
-        from_user = message.from_user
-        if data.get('user'):
-            user = data.pop('user')
-        else:
-            user = None
 
-        if data.get('loop_stop_word'):
-            data.pop('loop_stop_word')
-
-        data.pop('dialog')
-        data.pop('current_field')
-        new_data = {'json': data,
-                    'telegram_id': from_user.id,
-                    'username': from_user.username,
-                    'is_bot': from_user.is_bot,
-                    'language_code': from_user.language_code,
-                    'first_name': from_user.first_name}
-        if user:
-            user.update(new_data)
-        else:
-            UserList(**new_data).add()
-        # await message.reply(state)
         from messages import MESSAGES
 
-        await message.answer(str(MESSAGES.get('data_saved', '{}')).format(data),
+        await message.answer(MESSAGES.get('data_saved', '{}'),
                              reply_markup=types.ReplyKeyboardRemove())
+

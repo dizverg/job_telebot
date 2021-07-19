@@ -19,7 +19,6 @@ async def list_published(message: Message, state: FSMContext):
 
 
 async def publish(message: Message, state: FSMContext):
-    user_id = UserList.all()[0].id
     # Vacanse(user_id=user_id).add()
     from dialogs.publush_dialog import PublishDialog
     await PublishDialog().begin(message, state)

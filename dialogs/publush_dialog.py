@@ -23,39 +23,22 @@ class PublishDialog(BaseDialog):
 
     async def finish(self, message: Message, state: FSMContext):
         data = await state.get_data()
-        from_user = message.from_user
-
-        if data.get('user'):
-            user = data.pop('user')
-        else:
-            user = None
-
-        if data.get('loop_stop_word'):
-            data.pop('loop_stop_word')
-
-        data.pop('dialog')
-        data.pop('current_field')
-        new_data = {'json': data,
-                    'telegram_id': from_user.id,
-                    'username': from_user.username,
-                    'is_bot': from_user.is_bot,
-                    'language_code': from_user.language_code,
-                    'first_name': from_user.first_name}
-        if user:
-            user.update(new_data)
-        else:
-            user = UserList(**new_data).add()
-
-        # await message.reply(state)
-        from messages import MESSAGES
-
-        vacanse = Vacanse(image=data.get('image'),
-                          discriptions=data.get('discription'),
-                          questions=data.get('questions'),
-                          user_id=user.id)
-        await message.answer(
-            vacanse,
-            reply_markup=types.ReplyKeyboardRemove())
-        vacanse.add()
+        user_id = await self.get_user_id(message, state)
+        if not user_id:
+            await message.answer('error',
+                                 reply_markup=types.ReplyKeyboardRemove())
+            return
+        image=data.get('image')
+        discriptions=data.get('discription')
+        questions=data.get('questions')
+        vacanse = Vacanse(image=image,
+                          discriptions=discriptions,
+                          questions=questions,
+                          user_id=user_id)
+        if image or discriptions or questions:
+             vacanse.add()
+        await message.answer(vacanse, reply_markup=types.ReplyKeyboardRemove())
         state.finish()
-        State().set()
+
+
+
