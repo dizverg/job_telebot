@@ -22,6 +22,8 @@ class PublishDialog(BaseDialog):
         bot_dispatcher.register_message_handler(
             callback=self.photo_callback, state=vacanse_state, content_types=['photo'])
 
+        bot_dispatcher.register_callback_query_handler(
+            self.process_callback_vacanse)
         # bot_dispatcher.register_message_handler(
         #     callback=self.photo_callback, state=vacanse_state)
 
@@ -63,16 +65,16 @@ class PublishDialog(BaseDialog):
             'Откликнуться', callback_data=vacanse.id)
         inline_kb1 = InlineKeyboardMarkup().add(inline_btn_1)
 
-        bot_dispatcher.register_callback_query_handler(
-            self.process_callback_vacanse)
-
         msg = await bot.send_photo(CHANEL_ID, photo=photo, caption=vacanse.get_discription(),
                              reply_markup=inline_kb1)
 
-        await message.answer_photo(photo=photo, caption=vacanse, reply_markup=types.ReplyKeyboardRemove())
-        # await message.answer(vacanse, reply_markup=types.ReplyKeyboardRemove())
+        await message.answer_photo(photo=photo, caption=vacanse, 
+            reply_markup=types.ReplyKeyboardRemove())
+        await message.answer(vacanse, show_alert=True)
         state.finish()
 
     async def process_callback_vacanse(self, callback_query: CallbackQuery):
-        await bot.answer_callback_query(callback_query.id)
+        # await bot.answer_callback_query(callback_query.id)
         await bot.send_message(callback_query.from_user.id, callback_query.data)
+        await bot.answer_callback_query(
+            callback_query.id, text=callback_query.data, show_alert=True)
