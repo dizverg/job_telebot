@@ -70,7 +70,7 @@ class PublishDialog(BaseDialog):
 
         await message.answer_photo(photo=photo, caption=vacanse, 
             reply_markup=types.ReplyKeyboardRemove())
-        await message.answer(vacanse)
+        # await message.answer(vacanse)
         state.finish()
 
     async def process_callback_vacanse(self, callback_query: CallbackQuery):
