@@ -2,7 +2,7 @@
 from aiogram.types import CallbackQuery
 from aiogram.types.inline_keyboard import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.types.reply_keyboard import KeyboardButton, ReplyKeyboardMarkup
-from lib_telechatbot.bot_dispatcher import bot_dispatcher, bot
+
 
 from models.UserList import UserList
 from models import Applicant
@@ -13,6 +13,7 @@ from aiogram.dispatcher import FSMContext
 
 def register_main_menu_handlers():
     from messages import MAIN_MENU
+    from lib_telechatbot.bot_dispatcher import bot_dispatcher
     for key, value in MAIN_MENU.items():
         bot_dispatcher.register_message_handler(
             value.get("action", None), commands=key)
@@ -20,7 +21,8 @@ def register_main_menu_handlers():
 
 async def list_published(message: Message, state: FSMContext):
     for vacanse in Vacanse.all():
-        await message.answer_photo(photo=vacanse.photo, caption=vacanse.get_discription(),
+        await message.answer_photo(photo=vacanse.photo,
+                                   caption=vacanse.get_discription(),
                                    reply_markup=ReplyKeyboardRemove())
         # await message.answer(vacanse, reply_markup=ReplyKeyboardRemove())
 
