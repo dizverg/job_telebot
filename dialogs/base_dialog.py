@@ -65,10 +65,11 @@ class BaseDialog:
 
     async def get_answer(
             self, message: Message, state: FSMContext, on_finish=None):
-        try:
-            await ((await state.get_data()
-                    ).get('dialog')).get_answer(message, state, on_finish)
-        except:
+        # try:
+            dialog: Dialog = (await state.get_data()).get('dialog')
+            if dialog:
+                await dialog.get_answer(message, state, on_finish)
+        # except:
             ...
 
     async def finish(self, message: Message, state: FSMContext):

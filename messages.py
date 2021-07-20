@@ -41,7 +41,7 @@ create_vacanse_dialog_config = {
     'questions': {
         'photo': {
             'text': 'Фото',
-            'type': 'image',
+            'type': 'photo',
         },
         'discription': {
             'text': 'Опишите вакансию',
@@ -52,7 +52,7 @@ create_vacanse_dialog_config = {
             'loop_stop_word': 'Достаточно вопросов'
         }
     },
-    'order': ['discription', 'questions'],
+    'order': ['photo', 'discription', 'questions'],
     'state': State()
 }
 

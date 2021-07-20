@@ -8,7 +8,7 @@ from models.UserList import UserList
 
 class Vacanse(BaseModelWithTelegram):
     __tablename__ = 'vacanse'
-    image = Column(BYTEA)
+    photo = Column(TEXT)
     discriptions = Column(ARRAY(TEXT, dimensions=1))
     questions = Column(ARRAY(TEXT, dimensions=1))
 
@@ -17,5 +17,9 @@ class Vacanse(BaseModelWithTelegram):
         nullable=False, index=True)
 
     def __repr__(self):
-        return f"<{self.__class__.__name__}(" \
-               f"id={self.id!r}, discriptions={self.discriptions!r}, questions={self.questions!r})>"
+        return (f"Описание ваансии:\n" +
+                self.get_discription() + '\n\n'
+                f"Вопросы:\n" + '\n'.join(self.questions if self.questions else ""))
+
+    def get_discription(self):
+        return '\n'.join( self.discriptions if self.discriptions else "")

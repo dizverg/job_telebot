@@ -1,5 +1,7 @@
-import datetime
-from aiogram import types, Dispatcher
+from datetime import datetime
+from aiogram import Dispatcher
+from aiogram.types import Message, ReplyKeyboardMarkup, ReplyKeyboardRemove
+from sqlalchemy.sql.expression import false
 from models import Category, CategoryItem
 
 
@@ -13,8 +15,7 @@ class Dialog:
         self.dialog_state = config.get('state')
 
     async def check_answer(self, data, message):
-        answer = message.text
-        if not self.type_check(answer, data):
+        if not self.type_check(message, data):
             from messages import MESSAGES
 
             await message.answer(MESSAGES['bad_answer'])
@@ -22,18 +23,22 @@ class Dialog:
         return True
 
     @staticmethod
-    def type_check(answer, data):
-        try:
-            return {'int': answer.isnumeric,
-                    'select_one': lambda: answer in data.get('variants'),
-                    'date': lambda: datetime.datetime.strptime(answer,
-                                                               '%d.%m.%Y'),
+    def type_check(message: Message, data):
+        # try:
+        text = message.text
+        data_types = data.get('type', '*')
+        data_types = data_types if type(data_types) == list else [data_types]
+        for data_type in data_types:
+            if {'int': text.isnumeric if text else False,
+                'select_one': lambda: text in data.get('variants'),
+                        'date': lambda: datetime.strptime(text, '%d.%m.%Y'),
                     'select_one_or_type': lambda: True,
                     '*': lambda: True,
-                    'image': lambda: True
-                    }.get(data.get('type', '*'), False)()
-        except:
-            return False
+                'photo': lambda: bool( message.photo)
+                }.get(data_type, lambda: False)():
+                return True
+        # finally:
+        return False
 
     def get_first(self):
         try:
@@ -50,8 +55,7 @@ class Dialog:
         except:
             return ""
 
-    async def ask(self, message: types.Message,
-                  parameter_name: str = ""):
+    async def ask(self, message: Message, parameter_name: str = ""):
         parameter = self.get_parameter_by_name(parameter_name)
         if not parameter:
             return
@@ -66,10 +70,10 @@ class Dialog:
             keys.append(loop_stop_word)
 
         if keys:
-            keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+            keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
             keyboard.add(*keys)
         else:
-            keyboard = types.ReplyKeyboardRemove()
+            keyboard = ReplyKeyboardRemove()
 
         await self.dialog_state.set()
         await message.answer(parameter.get('text'), reply_markup=keyboard)
@@ -77,8 +81,10 @@ class Dialog:
             {'current_field': parameter_name, 'dialog': self,
              'loop_stop_word': loop_stop_word})
 
-    async def get_answer(self, message: types.Message, state, on_finish=None):
-        answer = message.text
+    async def get_answer(self, message: Message, state, on_finish=None):
+        text = message.text
+
+        
         field_name = (await state.get_data()).get('current_field')
         field_value = (await state.get_data()).get(field_name)
         check_result = await self.check_answer(
@@ -93,10 +99,13 @@ class Dialog:
         loop_stop_word = (await state.get_data()).get('loop_stop_word')
         # if not loop_stop_word or loop_stop_word == answer:
 
-        if loop_stop_word != answer:
-            await state.update_data({field_name: field_value + [answer]})
+        if message.photo:
+            state.update_data({field_name + 'photo': message.photo[-1]})
 
-        next_field = (field_name if loop_stop_word and loop_stop_word != answer
+        if loop_stop_word != text:
+            await state.update_data({field_name: field_value + [text]})
+
+        next_field = (field_name if loop_stop_word and loop_stop_word != text
                       else self.get_next(field_name))
 
         if next_field:

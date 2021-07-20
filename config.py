@@ -4,6 +4,7 @@ LOG = {'format': "%(asctime)s - [%(levelname)s] - %(name)s - "
                  "(%(filename)s).%(funcName)s(%(lineno)d) - %(message)s",
        'level': logging.INFO}
 
+CHANEL_ID = -1001568792005
 
 class DB_PG:
     filename = 'job_telebot.db'
@@ -21,13 +22,13 @@ class DB_PG:
             f"{cls.host}{f':{cls.port}' if cls.port else ''}/{cls.db_name}"
 
 
-class DB_SQLite:
-    filename = ':memory'
-    dialect_plus_driver = 'sqlite'
+# class DB_SQLite:
+#     filename = ':memory'
+#     dialect_plus_driver = 'sqlite'
 
-    @classmethod
-    def get_db_url(cls):
-        return f"{DB.dialect_plus_driver}:///{cls.filename}"
+#     @classmethod
+#     def get_db_url(cls):
+#         return f"{DB.dialect_plus_driver}:///{cls.filename}"
 
 
 DB = DB_PG
