@@ -9,20 +9,20 @@ from aiogram import types
 from aiogram.dispatcher.storage import FSMContext
 from aiogram.types.message import Message
 from dialogs.base_dialog import BaseDialog
-from lib_telechatbot.bot_dispatcher import bot, bot_dispatcher
+from lib_telechatbot.bot_dispatcher import bot, applicant_bot
 
 
 class PublishDialog(BaseDialog):
 
-    def register_handlers(self):
+    def register_handlers(self, dispatcher):
         vacanse_state = DIALOGS['create_vacanse']['state']
-        bot_dispatcher.register_message_handler(
+        dispatcher.register_message_handler(
             callback=self.answer_callback, state=vacanse_state, content_types=['text'])
 
-        bot_dispatcher.register_message_handler(
+        dispatcher.register_message_handler(
             callback=self.photo_callback, state=vacanse_state, content_types=['photo'])
 
-        bot_dispatcher.register_callback_query_handler(
+        dispatcher.register_callback_query_handler(
             self.process_callback_vacanse)
         # bot_dispatcher.register_message_handler(
         #     callback=self.photo_callback, state=vacanse_state)
@@ -65,11 +65,14 @@ class PublishDialog(BaseDialog):
             'Откликнуться', callback_data=vacanse.id)
         inline_kb1 = InlineKeyboardMarkup().add(inline_btn_1)
 
-        msg = await bot.send_photo(CHANEL_ID, photo=photo, caption=vacanse.get_discription(),
-                             reply_markup=inline_kb1)
+        msg = await applicant_bot.send_photo(
+            CHANEL_ID,
+            photo=photo,
+            caption=vacanse.get_discription(),
+            reply_markup=inline_kb1)
 
-        await message.answer_photo(photo=photo, caption=vacanse, 
-            reply_markup=types.ReplyKeyboardRemove())
+        await message.answer_photo(photo=photo, caption=vacanse,
+                                   reply_markup=types.ReplyKeyboardRemove())
         # await message.answer(vacanse)
         state.finish()
 

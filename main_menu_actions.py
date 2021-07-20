@@ -11,11 +11,10 @@ from aiogram.types import ReplyKeyboardRemove, Message
 from aiogram.dispatcher import FSMContext
 
 
-def register_main_menu_handlers():
+def register_main_menu_handlers(dispatcher):
     from messages import MAIN_MENU
-    from lib_telechatbot.bot_dispatcher import bot_dispatcher
     for key, value in MAIN_MENU.items():
-        bot_dispatcher.register_message_handler(
+        dispatcher.register_message_handler(
             value.get("action", None), commands=key)
 
 
