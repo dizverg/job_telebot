@@ -66,7 +66,7 @@ class PublishDialog(BaseDialog):
         bot_dispatcher.register_callback_query_handler(
             self.process_callback_vacanse)
 
-        await bot.send_photo(CHANEL_ID, photo=photo, caption=vacanse.get_discription(),
+        msg = await bot.send_photo(CHANEL_ID, photo=photo, caption=vacanse.get_discription(),
                              reply_markup=inline_kb1)
 
         await message.answer_photo(photo=photo, caption=vacanse, reply_markup=types.ReplyKeyboardRemove())
@@ -75,4 +75,4 @@ class PublishDialog(BaseDialog):
 
     async def process_callback_vacanse(self, callback_query: CallbackQuery):
         await bot.answer_callback_query(callback_query.id)
-        await bot.send_message(callback_query.from_user.id, 'Тут анкета будет')
+        await bot.send_message(callback_query.from_user.id, callback_query.data)
