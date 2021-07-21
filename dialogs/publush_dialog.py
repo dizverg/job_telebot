@@ -35,8 +35,7 @@ class PublishDialog(BaseDialog):
             content_types=['photo'])
 
     async def begin(self):
-        await super().begin(self.from_user, 'create_vacanse',
-                            Dialog(config=DIALOGS['create_vacanse'])),
+        await super().begin(),
 
     async def answer_callback(
             self, message: Message, state: FSMContext, *arrgs, **kwargs):

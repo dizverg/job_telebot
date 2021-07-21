@@ -67,7 +67,7 @@ class Dialog:
             return ""
 
     async def ask(self, from_user_id: int, parameter_name: str = "", 
-        state=None):
+        state=State()):
 
         parameter = self.get_parameter_by_name(parameter_name)
         if not parameter:

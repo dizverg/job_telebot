@@ -30,9 +30,8 @@ async def list_published(message: Message, state: FSMContext):
 async def publish(message: Message, state: FSMContext):
     # Vacanse(user_id=user_id).add()
     from dialogs.publush_dialog import PublishDialog
-    await PublishDialog().begin(message.from_user)
-    # TODO run publication dialog
-
+    await PublishDialog(message.from_user).begin()
+   
 
 async def list_waiting_applicants(message: Message, state: FSMContext):
     for applicant in Applicant.filter_by(accepted=None).all():

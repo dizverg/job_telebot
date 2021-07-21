@@ -12,13 +12,11 @@ from main_menu_actions import register_main_menu_handlers
 from messages import MAIN_MENU
 from aiogram.utils import executor
 from lib_telechatbot.bot_dispatcher import bot_dispatcher, bot, applicant_bot, publisher_bot
-from config import CHANEL_ID, LOG
+from config import CHANEL_ID, LOG, MODE
 
 logging.basicConfig(**LOG)
 
 
-@bot_dispatcher.callback_query_handler(
-    lambda query: query.data.startswith("respond"))
 async def respond_callback(callback_query: CallbackQuery):
     vacanse_id = callback_query.data.split(' ')[1]
 
@@ -38,7 +36,7 @@ async def respond_callback(callback_query: CallbackQuery):
     #     callback_query.id, text=callback_query.data, show_alert=True)
 
 
-@bot_dispatcher.callback_query_handler()
+
 async def default_callback(callback_query: CallbackQuery):
     await bot.answer_callback_query(callback_query.id)
 
@@ -46,7 +44,14 @@ async def default_callback(callback_query: CallbackQuery):
 if __name__ == '__main__':
 
     register_main_menu_handlers()
-    # PublishDialog.register_handlers()
+
+    if MODE == 'publisher_ui':
+         PublishDialog.register_handlers()
+
+    bot_dispatcher.register_callback_query_handler(
+        respond_callback, lambda query: query.data.startswith(MODE))
+
+    bot_dispatcher.register_callback_query_handler(default_callback)
 
     executor.start_polling(bot_dispatcher)
 

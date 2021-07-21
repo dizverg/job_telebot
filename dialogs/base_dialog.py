@@ -2,7 +2,7 @@ from aiogram.dispatcher.filters.state import State
 from aiogram.utils.mixins import DataMixin
 from lib_telechatbot.dialog import Dialog
 
-from aiogram import bot, types
+from aiogram import types
 from aiogram.dispatcher import FSMContext, filters
 from aiogram.types import ContentTypes, Message
 from aiogram.utils import executor
@@ -10,7 +10,7 @@ from aiogram.utils import executor
 
 from models import UserList
 
-from lib_telechatbot.bot_dispatcher import bot_dispatcher as dp
+from lib_telechatbot.bot_dispatcher import bot_dispatcher, bot
 
 
 class BaseDialog:
@@ -24,7 +24,7 @@ class BaseDialog:
         self.config = config
         self.state = State()
         self.from_user = from_user
-
+        self.dialog = Dialog(config=self.config, bot=bot)
 
     async def begin(self):
 
