@@ -57,5 +57,5 @@ create_vacanse_dialog_config = {
 }
 
 DIALOGS = {
-    'create_vacanse': create_vacanse_dialog_config,
+    'create_vacanse': create_vacanse_dialog_config
 }

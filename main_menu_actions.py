@@ -9,12 +9,13 @@ from models import Applicant
 from models.Vacanse import Vacanse
 from aiogram.types import ReplyKeyboardRemove, Message
 from aiogram.dispatcher import FSMContext
+from lib_telechatbot.bot_dispatcher import bot_dispatcher
 
 
-def register_main_menu_handlers(dispatcher):
+def register_main_menu_handlers():
     from messages import MAIN_MENU
     for key, value in MAIN_MENU.items():
-        dispatcher.register_message_handler(
+        bot_dispatcher.register_message_handler(
             value.get("action", None), commands=key)
 
 
@@ -29,7 +30,7 @@ async def list_published(message: Message, state: FSMContext):
 async def publish(message: Message, state: FSMContext):
     # Vacanse(user_id=user_id).add()
     from dialogs.publush_dialog import PublishDialog
-    await PublishDialog().begin(message, state)
+    await PublishDialog().begin(message.from_user)
     # TODO run publication dialog
 
 
@@ -42,9 +43,6 @@ async def show_stat(message: Message, state: FSMContext):
     markup_request = ReplyKeyboardMarkup(resize_keyboard=True).add(
         KeyboardButton('Отправить свой контакт ☎️', request_contact=True))
 
-    inline_btn_1 = InlineKeyboardButton(
-        'Первая кнопка!', callback_data='button1')
-    inline_kb1 = InlineKeyboardMarkup().add(inline_btn_1)
 
     vacanse_count = Vacanse.query().count()
     waiting_count = Applicant.filter_by(accepted=None).count()
@@ -55,8 +53,8 @@ async def show_stat(message: Message, state: FSMContext):
         f"Одобрено: {accepted_count}\n"
         f"Отклонено: {rejected_count}\n"
         f"В ожидании: {waiting_count}\n",
-        reply_markup=inline_kb1
-        # reply_markup=ReplyKeyboardRemove()
+        # reply_markup=inline_kb1
+        reply_markup=ReplyKeyboardRemove()
     )
 
 

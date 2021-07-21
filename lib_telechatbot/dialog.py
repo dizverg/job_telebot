@@ -1,18 +1,29 @@
 from datetime import datetime
 from aiogram import Dispatcher
+from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.dispatcher.storage import FSMContext
 from aiogram.types import Message, ReplyKeyboardMarkup, ReplyKeyboardRemove
-from sqlalchemy.sql.expression import false
 from models import Category, CategoryItem
+from lib_telechatbot.bot_dispatcher import applicant_bot, bot_dispatcher
 
+class reg(StatesGroup):
+    st = State()
 
 class Dialog:
     order = []
     questions = dict()
 
-    def __init__(self, config):
-        self.questions = config.get('questions')
-        self.order = config.get('order')
-        self.dialog_state = config.get('state')
+    def __init__(self, config, bot=None):
+
+        self.bot = bot or applicant_bot
+        if type(config) == dict:
+            self.questions = config.get('questions')
+            self.order = config.get('order')
+        elif type(config) == list:
+            self.questions = {v: {'text': v, 'type': '*'} for v in config}
+            self.order = config
+        else:
+            raise
 
     async def check_answer(self, data, message):
         if not self.type_check(message, data):
@@ -30,12 +41,12 @@ class Dialog:
         data_types = data_types if type(data_types) == list else [data_types]
         for data_type in data_types:
             if {'int': text.isnumeric if text else False,
-                'select_one': lambda: text in data.get('variants'),
-                        'date': lambda: datetime.strptime(text, '%d.%m.%Y'),
-                    'select_one_or_type': lambda: True,
-                    '*': lambda: True,
-                'photo': lambda: bool( message.photo)
-                }.get(data_type, lambda: False)():
+                    'select_one': lambda: text in data.get('variants'),
+                    'date': lambda: datetime.strptime(text, '%d.%m.%Y'),
+                        'select_one_or_type': lambda: True,
+                        '*': lambda: True,
+                            'photo': lambda: bool(message.photo)
+                    }.get(data_type, lambda: False)():
                 return True
         # finally:
         return False
@@ -55,7 +66,9 @@ class Dialog:
         except:
             return ""
 
-    async def ask(self, message: Message, parameter_name: str = ""):
+    async def ask(self, from_user_id: int, parameter_name: str = "", 
+        state=None):
+
         parameter = self.get_parameter_by_name(parameter_name)
         if not parameter:
             return
@@ -75,22 +88,30 @@ class Dialog:
         else:
             keyboard = ReplyKeyboardRemove()
 
-        await self.dialog_state.set()
-        await message.answer(parameter.get('text'), reply_markup=keyboard)
-        await Dispatcher.get_current().current_state().update_data(
+        await state.set()
+
+        await self.bot.send_message(from_user_id,
+                                    parameter.get('text'), reply_markup=keyboard)
+
+        await bot_dispatcher.current_state().update_data(
             {'current_field': parameter_name, 'dialog': self,
              'loop_stop_word': loop_stop_word})
+        current_state = bot_dispatcher.current_state()
 
-    async def get_answer(self, message: Message, state, on_finish=None):
+        print(current_state)
+
+    async def get_answer(
+        self, message: Message, state: FSMContext, on_finish=None):
         text = message.text
-
-        
-        field_name = (await state.get_data()).get('current_field')
-        field_value = (await state.get_data()).get(field_name)
+        data = await state.get_data()
+        field_name = data.get('current_field')
+        field_value = data.get(field_name)
         check_result = await self.check_answer(
             self.get_parameter_by_name(field_name), message)
         if not check_result:
-            await self.ask(message=message, parameter_name=field_name)
+            await self.ask(
+                from_user_id=message.from_user.id,
+                parameter_name=field_name)
             return
 
         field_value = (field_value if type(field_value) == list
@@ -100,7 +121,7 @@ class Dialog:
         # if not loop_stop_word or loop_stop_word == answer:
 
         if message.photo:
-            state.update_data({field_name + 'photo': message.photo[-1]})
+            await state.update_data({field_name + 'photo': message.photo[-1]})
 
         if loop_stop_word != text:
             await state.update_data({field_name: field_value + [text]})
@@ -110,7 +131,9 @@ class Dialog:
 
         if next_field:
             # print(str(await state.get_data()))
-            await self.ask(message=message, parameter_name=next_field)
+            await self.ask(
+                from_user_id=message.from_user.id,
+                parameter_name=next_field)
         else:
             await state.update_data({'current_field': None})
             await on_finish(message=message, state=state)
