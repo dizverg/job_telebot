@@ -34,16 +34,8 @@ class PublishDialog(BaseDialog, AuthMixin):
         super().__init__(publisher_bot, create_vacanse_dialog_config)
 
         if MODE == 'publisher_ui':
-            bot_dispatcher.register_message_handler(
-                callback=self.get_answer,
-                state=self.dialog_base_state,
-                content_types=['text'])
-
-            bot_dispatcher.register_message_handler(
-                callback=self.photo_callback,
-                state=self.dialog_base_state,
-                content_types=['photo'])
-
+            self.register_handlers()
+            
     async def begin(self, from_user, state: FSMContext):
         await super().begin(from_user, state)
         self.user = await self.auth(from_user)

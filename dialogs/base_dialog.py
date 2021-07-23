@@ -1,19 +1,32 @@
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.utils.mixins import DataMixin
-from lib_telechatbot.dialog import Dialog
-
 from aiogram import types
-from aiogram.dispatcher import FSMContext, filters
-from aiogram.types import ContentTypes, Message
-from aiogram.utils import executor
-
+from aiogram.dispatcher import FSMContext
+from aiogram.types import Message
 
 from models import UserList
-
-from lib_telechatbot.bot_dispatcher import bot
+from lib_telechatbot.bot_dispatcher import bot_dispatcher
+from lib_telechatbot.dialog import Dialog
 
 
 class BaseDialog:
+    def register_handlers(self):
+
+        bot_dispatcher.register_message_handler(
+            callback=self.get_answer,
+            state=self.dialog_base_state,
+            content_types=['text'])
+
+        bot_dispatcher.register_message_handler(
+            callback=self.photo_callback,
+            state=self.dialog_base_state,
+            content_types=['photo'])
+
+        bot_dispatcher.register_message_handler(
+            callback=self.video_callback,
+            state=self.dialog_base_state,
+            content_types=['video'])
+
+
     def __init__(self, bot, config) -> None:
         super().__init__()
         self.user = None
@@ -43,6 +56,12 @@ class BaseDialog:
         file_id = message.photo[-1].file_id
         await state.update_data({'file_id': file_id})
         await self.get_answer(message, state)
+
+    async def video_callback(
+            self, message: Message, state: FSMContext, *arrgs, **kwargs):
+        file_id = message.video[-1].file_id
+        await state.update_data({'file_id': file_id})
+        await self.get_answer(message, state, self.finish)
 
     async def finish(self, message: Message, state: FSMContext):
         state.finish()

@@ -1,5 +1,6 @@
 
 
+from config import MODE
 from io import BytesIO
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
@@ -17,8 +18,6 @@ from aiogram.types.message import Message
 from dialogs.base_dialog import BaseDialog
 from lib_telechatbot.bot_dispatcher import bot, applicant_bot, bot_dispatcher
 
-class reg(StatesGroup):
-    st = State()
 
 async def respond_callback(callback_query: CallbackQuery):
         vacanse_id = callback_query.data.split(' ')[1]
@@ -39,39 +38,12 @@ async def respond_callback(callback_query: CallbackQuery):
 
 
 class RespondDialog(BaseDialog):    
-    def __init__(self, config, from_user) -> None:
-        super().__init__(config, from_user)
-        self.config = config
-        self.from_user = from_user
-        self.dialog = Dialog(config=self.config, bot=applicant_bot)
+    def __init__(self, config) -> None:
+        super().__init__(applicant_bot, config)
 
+        if MODE == 'applicant_ui':
+            self.register_handlers()
 
-    def register_handlers(self):
-        
-        bot_dispatcher.register_message_handler(
-            callback=self.answer_callback,
-            state=reg.st,
-            content_types=['text'])
-
-        bot_dispatcher.register_message_handler(
-            callback=self.video_callback,
-            state=reg.st,
-            content_types=['video'])
-
-    async def begin(self, from_user):
-        
-
-        await self.dialog.ask(self.from_user.id, self.config[0], state = reg.st)
-
-    async def answer_callback(
-            self, message: Message, state: FSMContext, *arrgs, **kwargs):
-        await self.get_answer(message, state, self.finish)
-
-    async def video_callback(
-            self, message: Message, state: FSMContext, *arrgs, **kwargs):
-        file_id = message.video[-1].file_id
-        await state.update_data({'file_id': file_id})
-        await self.get_answer(message, state, self.finish)
 
     async def finish(self, message: Message, state: FSMContext):
         data = await state.get_data()
