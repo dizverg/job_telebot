@@ -1,33 +1,34 @@
 
 import asyncio
+import logging
 
 from aiogram.dispatcher.filters.state import State
-from dialogs.respond_dialog import RespondDialog
-from models.Vacanse import Vacanse
-from lib_telechatbot.dialog import Dialog
-
 from aiogram.types.callback_query import CallbackQuery
+from aiogram.utils import executor
+
+from config import CHANEL_ID, LOG, MODE
 from dialogs.publush_dialog import PublishDialog
-import logging
+from dialogs.respond_dialog import RespondDialog
+from lib_telechatbot.bot_dispatcher import (applicant_bot, bot, bot_dispatcher,
+                                            publisher_bot)
+from lib_telechatbot.dialog import Dialog
 from main_menu_actions import register_main_menu_handlers
 from messages import MAIN_MENU
-from aiogram.utils import executor
-from lib_telechatbot.bot_dispatcher import bot_dispatcher, bot, applicant_bot, publisher_bot
-from config import CHANEL_ID, LOG, MODE
+from models.Vacanse import Vacanse
 
 callback = {
-
+    # 'applicant_ui': applicant_callbac
 }
 
+publish_dialog = PublishDialog()
 
 def register_handlers():
-    
-    if MODE == 'publisher_ui':
-         PublishDialog.register_handlers()
 
     register_main_menu_handlers()
 
     register_callback_query_handlers()
+
+
 
 
 def register_main_menu_handlers():

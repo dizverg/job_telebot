@@ -19,15 +19,15 @@ class BaseDialog:
     dialog: Dialog
 
 
-    def __init__(self, config, from_user) -> None:
+    def __init__(self, config) -> None:
         super().__init__()
         self.config = config
         self.state = State()
-        self.from_user = from_user
+        self.from_user = None
         self.dialog = Dialog(config=self.config, bot=bot)
 
-    async def begin(self):
-
+    async def begin(self, from_user):
+        self.from_user = from_user
         self.user = await self.auth()
 
         # await self.state.update_data({'dialog': self.dialog})

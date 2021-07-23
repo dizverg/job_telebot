@@ -6,7 +6,7 @@ from aiogram.types.callback_query import CallbackQuery
 from aiogram.types.inline_keyboard import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.types.reply_keyboard import ReplyKeyboardRemove
 from sqlalchemy.sql.expression import text
-from config import CHANEL_ID
+from config import CHANEL_ID, MODE
 from messages import DIALOGS
 from models import Vacanse
 from aiogram import types
@@ -19,18 +19,20 @@ from lib_telechatbot.bot_dispatcher import bot, applicant_bot, bot_dispatcher
 class PublishDialog(BaseDialog):
     def __init__(self, from_user) -> None:
         super().__init__(DIALOGS['create_vacanse'], from_user)
+        if MODE == 'publisher_ui':
+            self.register_handlers()
 
-    @classmethod
-    def register_handlers(cls):
+
+    def register_handlers(self):
         vacanse_state = DIALOGS['create_vacanse']['state']
 
         bot_dispatcher.register_message_handler(
-            callback=cls.answer_callback,
+            callback=self.answer_callback,
             state=vacanse_state,
             content_types=['text'])
 
         bot_dispatcher.register_message_handler(
-            callback=cls.photo_callback,
+            callback=self.photo_callback,
             state=vacanse_state,
             content_types=['photo'])
 

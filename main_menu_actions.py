@@ -1,17 +1,13 @@
-
-from aiogram.types import CallbackQuery
-from aiogram.types.inline_keyboard import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.dispatcher import FSMContext
+from aiogram.types import CallbackQuery, Message, ReplyKeyboardRemove
+from aiogram.types.inline_keyboard import (InlineKeyboardButton,
+                                           InlineKeyboardMarkup)
 from aiogram.types.reply_keyboard import KeyboardButton, ReplyKeyboardMarkup
 
-
-from models.UserList import UserList
 from models import Applicant
-from models.Vacanse import Vacanse
-from aiogram.types import ReplyKeyboardRemove, Message
-from aiogram.dispatcher import FSMContext
-from lib_telechatbot.bot_dispatcher import bot_dispatcher
 
-from dialogs.publush_dialog import PublishDialog
+from models.Vacanse import Vacanse
+from register_handlers import publish_dialog
 
 
 async def list_published(message: Message, state: FSMContext):
@@ -24,7 +20,8 @@ async def list_published(message: Message, state: FSMContext):
 
 async def publish(message: Message, state: FSMContext):
     # Vacanse(user_id=user_id).add()
-    await PublishDialog(message.from_user).begin()
+    
+    await publish_dialog.begin()
    
 
 async def list_waiting_applicants(message: Message, state: FSMContext):
