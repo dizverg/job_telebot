@@ -1,13 +1,9 @@
 from datetime import datetime
-from aiogram import Dispatcher
-from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher.storage import FSMContext
 from aiogram.types import Message, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from models import Category, CategoryItem
 from lib_telechatbot.bot_dispatcher import applicant_bot, bot_dispatcher
 
-class reg(StatesGroup):
-    st = State()
 
 class Dialog:
     order = []
@@ -66,8 +62,7 @@ class Dialog:
         except:
             return ""
 
-    async def ask(self, from_user_id: int, parameter_name: str = "", 
-        state=State()):
+    async def ask(self, from_user_id: int, parameter_name, state: FSMContext):
 
         parameter = self.get_parameter_by_name(parameter_name)
         if not parameter:
@@ -88,22 +83,20 @@ class Dialog:
         else:
             keyboard = ReplyKeyboardRemove()
 
-        await state.set()
-
         await self.bot.send_message(from_user_id,
                                     parameter.get('text'), reply_markup=keyboard)
 
-        await bot_dispatcher.current_state().update_data(
-            {'current_field': parameter_name, 'dialog': self,
+        await state.update_data(
+            {'current_field': parameter_name, 
              'loop_stop_word': loop_stop_word})
-        current_state = bot_dispatcher.current_state()
 
-        print(current_state)
 
     async def get_answer(
         self, message: Message, state: FSMContext, on_finish=None):
         text = message.text
-        data = await state.get_data()
+
+        data = await  state.get_data()
+
         field_name = data.get('current_field')
         field_value = data.get(field_name)
         check_result = await self.check_answer(
@@ -133,7 +126,8 @@ class Dialog:
             # print(str(await state.get_data()))
             await self.ask(
                 from_user_id=message.from_user.id,
-                parameter_name=next_field)
+                parameter_name=next_field,
+                state=state)
         else:
             await state.update_data({'current_field': None})
             await on_finish(message=message, state=state)

@@ -5,9 +5,8 @@ from aiogram.types.inline_keyboard import (InlineKeyboardButton,
 from aiogram.types.reply_keyboard import KeyboardButton, ReplyKeyboardMarkup
 
 from models import Applicant
-
-from models.Vacanse import Vacanse
-from register_handlers import publish_dialog
+from models import Vacanse
+from publush_dialog import publish_dialog
 
 
 async def list_published(message: Message, state: FSMContext):
@@ -20,8 +19,7 @@ async def list_published(message: Message, state: FSMContext):
 
 async def publish(message: Message, state: FSMContext):
     # Vacanse(user_id=user_id).add()
-    
-    await publish_dialog.begin()
+    await publish_dialog.begin(message.from_user,state)
    
 
 async def list_waiting_applicants(message: Message, state: FSMContext):

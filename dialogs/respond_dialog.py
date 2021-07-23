@@ -4,14 +4,12 @@ from io import BytesIO
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 from aiogram.types import callback_query, video
-from lib_telechatbot.dialog import Dialog, reg
+from lib_telechatbot.dialog import Dialog
 
 from aiogram.types.callback_query import CallbackQuery
 from aiogram.types.inline_keyboard import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.types.reply_keyboard import ReplyKeyboardRemove
 from sqlalchemy.sql.expression import text
-from config import CHANEL_ID
-from messages import DIALOGS
 from models import Vacanse
 from aiogram import types
 from aiogram.dispatcher.storage import FSMContext
@@ -19,9 +17,11 @@ from aiogram.types.message import Message
 from dialogs.base_dialog import BaseDialog
 from lib_telechatbot.bot_dispatcher import bot, applicant_bot, bot_dispatcher
 
+class reg(StatesGroup):
+    st = State()
+
 async def respond_callback(callback_query: CallbackQuery):
         vacanse_id = callback_query.data.split(' ')[1]
-
 
         dialog =RespondDialog(
             config = Vacanse.find_by_id(vacanse_id).questions,
@@ -36,6 +36,7 @@ async def respond_callback(callback_query: CallbackQuery):
         # await bot.send_message(callback_query.from_user.id, callback_query.data)
         # await applicant_bot.answer_callback_query(
         #     callback_query.id, text=callback_query.data, show_alert=True)
+
 
 class RespondDialog(BaseDialog):    
     def __init__(self, config, from_user) -> None:
@@ -57,7 +58,8 @@ class RespondDialog(BaseDialog):
             state=reg.st,
             content_types=['video'])
 
-    async def begin(self):
+    async def begin(self, from_user):
+        
 
         await self.dialog.ask(self.from_user.id, self.config[0], state = reg.st)
 

@@ -3,12 +3,13 @@ from aiogram.utils import executor
 
 from lib_telechatbot.bot_dispatcher import bot_dispatcher
 from config import LOG
-from register_handlers import register_handlers
+from register_handlers import register_main_menu_handlers, register_callback_query_handlers
 
 logging.basicConfig(**LOG)
 
 if __name__ == '__main__':
-    register_handlers()
+    register_main_menu_handlers()
+    register_callback_query_handlers()
     executor.start_polling(bot_dispatcher)
 
 
