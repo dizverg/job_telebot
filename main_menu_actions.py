@@ -11,12 +11,7 @@ from aiogram.types import ReplyKeyboardRemove, Message
 from aiogram.dispatcher import FSMContext
 from lib_telechatbot.bot_dispatcher import bot_dispatcher
 
-
-def register_main_menu_handlers():
-    from messages import MAIN_MENU
-    for key, value in MAIN_MENU.items():
-        bot_dispatcher.register_message_handler(
-            value.get("action", None), commands=key)
+from dialogs.publush_dialog import PublishDialog
 
 
 async def list_published(message: Message, state: FSMContext):
@@ -29,7 +24,6 @@ async def list_published(message: Message, state: FSMContext):
 
 async def publish(message: Message, state: FSMContext):
     # Vacanse(user_id=user_id).add()
-    from dialogs.publush_dialog import PublishDialog
     await PublishDialog(message.from_user).begin()
    
 

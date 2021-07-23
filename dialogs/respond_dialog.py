@@ -19,7 +19,23 @@ from aiogram.types.message import Message
 from dialogs.base_dialog import BaseDialog
 from lib_telechatbot.bot_dispatcher import bot, applicant_bot, bot_dispatcher
 
+async def respond_callback(callback_query: CallbackQuery):
+        vacanse_id = callback_query.data.split(' ')[1]
 
+
+        dialog =RespondDialog(
+            config = Vacanse.find_by_id(vacanse_id).questions,
+            from_user =callback_query.from_user
+        )
+        dialog.register_handlers()
+
+        await dialog.begin()
+        
+        await bot.answer_callback_query(callback_query.id)
+
+        # await bot.send_message(callback_query.from_user.id, callback_query.data)
+        # await applicant_bot.answer_callback_query(
+        #     callback_query.id, text=callback_query.data, show_alert=True)
 
 class RespondDialog(BaseDialog):    
     def __init__(self, config, from_user) -> None:
