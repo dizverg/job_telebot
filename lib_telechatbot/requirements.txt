@@ -1,6 +1,0 @@
-aiogram
-sqlalchemy
-pyvalidator
-psycopg2-binary
-psycopg2
-inflection

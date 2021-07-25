@@ -2,7 +2,7 @@ from sqlalchemy import Column, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID, ARRAY, JSON, TEXT
 from sqlalchemy.dialects.postgresql.base import BYTEA
 
-from lib_telechatbot.models.abstract_BaseModelWithTelegam import BaseModelWithTelegram
+from lib.models.abstract_BaseModelWithTelegam import BaseModelWithTelegram
 from models.UserList import UserList
 
 
@@ -17,9 +17,9 @@ class Vacanse(BaseModelWithTelegram):
         nullable=False, index=True)
 
     def __repr__(self):
-        return (f"Описание ваансии:\n" +
-                self.get_discription() + '\n\n'
-                f"Вопросы:\n" + '\n'.join(self.questions if self.questions else ""))
+        discription = f"Описание ваансии:\n" + self.get_discription()
+        questions = f"Вопросы:\n" + '\n'.join(self.questions if self.questions else "")
+        return '\n\n'.join((discription, questions))
 
     def get_discription(self):
         return '\n'.join( self.discriptions if self.discriptions else "")
