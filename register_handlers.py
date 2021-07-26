@@ -6,10 +6,9 @@ from respond_dialog import applicant_respond_callback
 
 
 callback = {
-    'applicant_ui': applicant_respond_callback
+    'applicant_ui': applicant_respond_callback,
+    # 'hr_ui':hr_callback
 }
-
-# publish_dialog = PublishDialog()
 
 
 def register_main_menu_handlers():
