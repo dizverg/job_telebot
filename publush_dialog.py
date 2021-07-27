@@ -12,26 +12,6 @@ from lib.base_dialog import AuthMixin, BaseDialog
 from lib.bot_dispatcher import bot, applicant_bot, publisher_bot, bot_dispatcher
 
 
-create_vacanse_dialog_config = {
-    'questions': {
-        'photo': {
-            'text': 'Фото',
-            'type': 'photo',
-        },
-        'discription': {
-            'text': 'Опишите вакансию',
-            'loop_stop_word': 'Закончить с описанием',
-        },
-        'questions': {
-            'text': 'Задайте вопрос соискателю',
-            'loop_stop_word': 'Достаточно вопросов'
-        }
-    },
-    'order': ['discription', 'questions', 'photo', ]
-}
-
-
-
 class PublishDialog(BaseDialog, AuthMixin):
     def __init__(self) -> None:
         # super().__init__(publisher_bot, create_vacanse_dialog_config)

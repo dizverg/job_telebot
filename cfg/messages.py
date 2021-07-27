@@ -17,4 +17,20 @@ MESSAGES = {
 }
 
 
-
+create_vacanse_dialog_config = {
+    'questions': {
+        'photo': {
+            'text': 'Фото',
+            'type': 'photo',
+        },
+        'discription': {
+            'text': 'Опишите вакансию',
+            'loop_stop_word': 'Закончить с описанием',
+        },
+        'questions': {
+            'text': 'Задайте вопрос соискателю',
+            'loop_stop_word': 'Достаточно вопросов'
+        }
+    },
+    'order': ['discription', 'questions', 'photo', ]
+}
