@@ -37,5 +37,5 @@ class DB_PG:
 
 DB = DB_PG
 DB_URL = DB.get_db_url()
-print(DB_URL)
+# print(DB_URL)
 
