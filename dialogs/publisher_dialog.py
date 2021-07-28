@@ -11,12 +11,6 @@ from lib.bot_dispatcher import bot_dispatcher, applicant_bot
 from models import Vacanse
 
 
-class PublishStates(StatesGroup):
-    discription = State()
-    questions = State()
-    photo = State()
-
-
 publisher_dialog_cfg = {
     'questions': {
         'photo': {
@@ -37,14 +31,19 @@ publisher_dialog_cfg = {
 
 
 class PublisherDialog(AuthMixin):
-    @staticmethod
-    async def begin(message: Message):
-        await PublishStates.first()
-        await PublisherDialog.ask(message.chat.id)
+    class States(StatesGroup):
+        discription = State()
+        questions = State()
+        photo = State()    
 
-    @staticmethod
-    async def ask(chat_id):
-        current_question = await PublisherDialog.current_question()
+    @classmethod
+    async def begin(cls, message: Message):
+        await cls.States.first()
+        await cls.ask(message.chat.id)
+
+    @classmethod
+    async def ask(cls, chat_id):
+        current_question = await cls.current_question()
         loop_stop_word = current_question.get('loop_stop_word')
 
         if loop_stop_word:
@@ -53,31 +52,29 @@ class PublisherDialog(AuthMixin):
         else:
             keyboard = ReplyKeyboardRemove()
 
-        await bot_dispatcher.bot.send_message(chat_id,
-                                              current_question.get('text'), reply_markup=keyboard)
+        await bot_dispatcher.bot.send_message(
+            chat_id, current_question.get('text'), reply_markup=keyboard)
 
     @staticmethod
     async def get_field_from_state():
-        state = bot_dispatcher.current_state()
-        field = str(await state.get_state()).split(':')[1]
-        return field
+        return str(await bot_dispatcher.current_state().get_state()).split(':')[1]
 
-    @staticmethod
-    async def current_question_text():
-        return (await PublisherDialog.current_question()).get('text')
+    @classmethod
+    async def current_question_text(cls):
+        return (await cls.current_question()).get('text')
 
-    @staticmethod
-    async def current_question() -> dict:
+    @classmethod
+    async def current_question(cls) -> dict:
         return publisher_dialog_cfg.get('questions').get(
-            await PublisherDialog.get_field_from_state())
+            await cls.get_field_from_state())
 
-    @staticmethod
-    async def get_text_answer(message: Message, state: FSMContext):
+    @classmethod
+    async def get_text_answer(cls, message: Message, state: FSMContext):
         text = message.text
         data = await state.get_data()
-        field = await PublisherDialog.get_field_from_state()
+        field = await cls.get_field_from_state()
 
-        loop_stop_word = (await PublisherDialog.current_question()
+        loop_stop_word = (await cls.current_question()
                           ).get('loop_stop_word')
 
         if text != loop_stop_word:
@@ -85,14 +82,14 @@ class PublisherDialog(AuthMixin):
             await state.update_data({field: new_data})
 
         if not loop_stop_word or text == loop_stop_word:
-            await PublishStates.next()
+            await cls.States.next()
 
-        await PublisherDialog.ask(message.chat.id)
-
+        await cls.ask(message.chat.id)
 
     @staticmethod
     async def get_photo_answer(message: Message, state: FSMContext):
         file_id = message.photo[-1].file_id
+
         data = await state.get_data()
 
         await state.finish()
@@ -118,11 +115,10 @@ class PublisherDialog(AuthMixin):
                                    reply_markup=ReplyKeyboardRemove())
 
         # publishing to chanel
-        from cfg.messages import MESSAGES        
+        from cfg.messages import MESSAGES
         await applicant_bot.send_photo(
             CHANEL_ID,
             photo=await message.bot.download_file_by_id(file_id),
             caption=vacanse.get_discription() or '-',
             reply_markup=InlineKeyboardMarkup().add(
                 InlineKeyboardButton(MESSAGES['response'], callback_data=f'applicant_ui {vacanse.id}')))
-

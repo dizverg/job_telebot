@@ -12,7 +12,7 @@ async def applicant_respond_callback(callback_query: CallbackQuery):
         text=callback_query.data,
         show_alert=False)
 
-    response_dialog = RespondDialog(
+    response_dialog = RespondDialog.begin()
         questions=Vacanse.find_by_id(vacanse_id).questions,
     )
 

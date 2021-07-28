@@ -1,53 +1,71 @@
+from abc import abstractclassmethod
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import Message
+from aiogram.types.reply_keyboard import ReplyKeyboardMarkup, ReplyKeyboardRemove
 
 from models import UserList
 from lib.bot_dispatcher import bot_dispatcher
 from lib.dialog import Dialog
 
+class DialogInterfase:
+    
+    @abstractclassmethod
+    async def begin(cls, message: Message):
+        ...
 
-class BaseDialog:
-    def __init__(self, bot, config) -> None:
-        super().__init__()
-        self.user = None
-        self.config = config
-        self.bot = bot
-        class states_group(StatesGroup):
+    @abstractclassmethod
+    async def ask(cls, chat_id):
+        ...
+
+    @abstractclassmethod
+    async def on_get_answer(cls, message: Message, state: FSMContext):
+        ...
+
+
+
+class BaseDialog(DialogInterfase):
+    class States(StatesGroup):
             state = State()
-        self.dialog_base_state = states_group.state
-        self.dialog = Dialog(self.config, self.bot)
-    # def register_handlers(self, state):
-    #     bot_dispatcher.register_message_handler(
-    #         callback=self.get_answer,
-    #         state=state,
-    #         content_types=['text'])
+
+    @classmethod
+    async def begin(cls, message: Message):
+        await cls.States.first()
+        await cls.ask(message.chat.id)
+
+    @classmethod
+    async def ask(cls, chat_id):
+        current_question = await cls.current_question()
+        loop_stop_word = current_question.get('loop_stop_word')
+
+        if loop_stop_word:
+            keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+            keyboard.add(loop_stop_word)
+        else:
+            keyboard = ReplyKeyboardRemove()
+
+        await bot_dispatcher.bot.send_message(
+            chat_id, current_question.get('text'), reply_markup=keyboard)
+
+    @classmethod
+    async def get_answer(cls, message: Message, state: FSMContext):
+        await cls.dialog.get_answer(message, state, cls.finish)
 
 
-    #     bot_dispatcher.register_message_handler(
-    #         callback=self.photo_callback,
-    #         state=state,
-    #         content_types=['photo'])
+    @classmethod
+    async def get_field_from_state(cls):
+        return str(await bot_dispatcher.current_state().get_state()).split(':')[1]
 
-    #     bot_dispatcher.register_message_handler(
-    #         callback=self.video_callback,
-    #         state=state,
-    #         content_types=['video'])
+    @classmethod
+    async def current_question_text(cls):
+        return (await cls.current_question()).get('text')
 
-        # bot_dispatcher.register_message_handler(
-        #     callback=self.get_answer2,
-        #     state='*',
-        #     # state=state,
-        #     content_types=['text'])
-
-
-    async def begin(self, from_user):
-        
-
-        await self.dialog_base_state.set()
-        await self.dialog.ask(from_user_id=from_user.id,
-                              parameter_name=self.dialog.get_first())
+    @classmethod
+    async def current_question(cls) -> dict:
+        return publisher_dialog_cfg.get('questions').get(
+            await cls.get_field_from_state())
+       
 
     async def finish_dialog(self, message: Message, state: FSMContext):
         await message.answer(str(await state.get_data()),

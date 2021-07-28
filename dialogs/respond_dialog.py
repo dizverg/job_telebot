@@ -11,11 +11,6 @@ class RespondDialog(BaseDialog):
     class RespondStatesGroup(StatesGroup):
         state = State()
 
-    def __init__(self, config) -> None:
-        super().__init__(applicant_bot, config)
-
-        self.dialog_base_state = self.RespondStatesGroup.state
-
     async def begin(self, from_user):
         # await super().begin(from_user)
         await bot_dispatcher.storage.reset_data(user=from_user.id)
