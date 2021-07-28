@@ -1,5 +1,5 @@
 import logging, sys
-from private_token import tokens
+from cfg.private_token import tokens
 
 MODE =sys.argv[1] if len(sys.argv)>1 else None
 TOKEN =tokens.get(MODE or list(tokens)[0])

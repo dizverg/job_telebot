@@ -77,12 +77,12 @@ class BaseDialog:
 
 
 class AuthMixin:
-    async def auth(self, from_user):
+
+    async def auth(from_user):
         if not from_user:
             return
 
-        self.user = self.user or await UserList.get_user(
-            user_telegram_id=from_user.id)
+        user = await UserList.get_user( user_telegram_id=from_user.id)
 
         # excess_fields = {'dialog', 'current_field', 'loop_stop_word', 'user'}
         # data = dict((k, v) for k, v in data.items() if k not in excess_fields)
@@ -93,17 +93,15 @@ class AuthMixin:
             'is_bot': from_user.is_bot,
             'language_code': from_user.language_code,
             'first_name': from_user.first_name}
-        if self.user:
-            self.user.update(self.user.id, new_data)
-        else:
-            self.user = UserList(**new_data)
-            self.user.add()
 
-        if self.user:
-            return self.user
+        if user:
+            user.update(user.id, new_data)
         else:
-            return
+            user = UserList(**new_data)
+            user.add()
+        return user
 
-    async def get_user_id(self, from_user):
-        user = await self.auth(from_user)
+    @classmethod
+    async def get_user_id(cls, from_user):
+        user = await cls.auth(from_user)
         return user.id if user else None
