@@ -1,4 +1,4 @@
-from dialogs.publisher_dialog import PublishStates, PublisherDialog
+from dialogs.publisher_dialog import PublisherDialog
 from aiogram.dispatcher.storage import FSMContext
 from aiogram.types.callback_query import CallbackQuery
 from aiogram.types.message import Message
@@ -19,25 +19,25 @@ def register_main_menu_handlers(main_menu):
             value.get("action", None), commands=key)
 
 
-
 if __name__ == '__main__':
 
     if MODE == 'publisher_ui':
         register_main_menu_handlers(PUBLISHER_MENU)
-        
+
         bot_dispatcher.register_message_handler(
-            PublisherDialog.get_text_answer, 
-            state=[PublishStates.questions, PublishStates.discription],
+            PublisherDialog.get_text_answer,
+            state=[PublisherDialog.States.questions,
+                   PublisherDialog.States.discription],
             content_types=['text'])
-        
+
         # bot_dispatcher.register_message_handler(
-        #     PublisherDialog.get_text_answer, 
+        #     PublisherDialog.get_text_answer,
         #     state='*')
 
         bot_dispatcher.register_message_handler(
-            PublisherDialog.get_photo_answer, state=PublishStates.photo, 
+            PublisherDialog.get_photo_answer,
+            state=PublisherDialog.States.photo,
             content_types=['photo'])
-
 
     bot_dispatcher.register_callback_query_handler(
         applicant_respond_callback,

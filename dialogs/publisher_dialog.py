@@ -6,7 +6,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types.reply_keyboard import ReplyKeyboardMarkup, ReplyKeyboardRemove
 
 from cfg.config import CHANEL_ID
-from lib.base_dialog import AuthMixin
+from lib.base_dialog import AuthMixin, BaseDialog
 from lib.bot_dispatcher import bot_dispatcher, applicant_bot
 from models import Vacanse
 
@@ -30,7 +30,7 @@ publisher_dialog_cfg = {
 }
 
 
-class PublisherDialog(AuthMixin):
+class PublisherDialog(BaseDialog, AuthMixin):
     class States(StatesGroup):
         discription = State()
         questions = State()
@@ -38,8 +38,7 @@ class PublisherDialog(AuthMixin):
 
     @classmethod
     async def begin(cls, message: Message):
-        await cls.States.first()
-        await cls.ask(message.chat.id)
+        await super().begin(message, publisher_dialog_cfg)
 
     @classmethod
     async def ask(cls, chat_id):
@@ -54,19 +53,6 @@ class PublisherDialog(AuthMixin):
 
         await bot_dispatcher.bot.send_message(
             chat_id, current_question.get('text'), reply_markup=keyboard)
-
-    @staticmethod
-    async def get_field_from_state():
-        return str(await bot_dispatcher.current_state().get_state()).split(':')[1]
-
-    @classmethod
-    async def current_question_text(cls):
-        return (await cls.current_question()).get('text')
-
-    @classmethod
-    async def current_question(cls) -> dict:
-        return publisher_dialog_cfg.get('questions').get(
-            await cls.get_field_from_state())
 
     @classmethod
     async def get_text_answer(cls, message: Message, state: FSMContext):

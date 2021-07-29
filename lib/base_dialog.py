@@ -9,8 +9,9 @@ from models import UserList
 from lib.bot_dispatcher import bot_dispatcher
 from lib.dialog import Dialog
 
+
 class DialogInterfase:
-    
+
     @abstractclassmethod
     async def begin(cls, message: Message):
         ...
@@ -24,14 +25,14 @@ class DialogInterfase:
         ...
 
 
-
 class BaseDialog(DialogInterfase):
     class States(StatesGroup):
-            state = State()
+        state = State()
 
     @classmethod
-    async def begin(cls, message: Message):
+    async def begin(cls, message: Message, config):
         await cls.States.first()
+        await cls.get_current_state().update_data({'config': config})
         await cls.ask(message.chat.id)
 
     @classmethod
@@ -52,10 +53,13 @@ class BaseDialog(DialogInterfase):
     async def get_answer(cls, message: Message, state: FSMContext):
         await cls.dialog.get_answer(message, state, cls.finish)
 
+    @classmethod
+    def get_current_state(cls):
+        return bot_dispatcher.current_state()
 
     @classmethod
     async def get_field_from_state(cls):
-        return str(await bot_dispatcher.current_state().get_state()).split(':')[1]
+        return str(await cls.get_current_state().get_state()).split(':')[1]
 
     @classmethod
     async def current_question_text(cls):
@@ -63,9 +67,12 @@ class BaseDialog(DialogInterfase):
 
     @classmethod
     async def current_question(cls) -> dict:
-        return publisher_dialog_cfg.get('questions').get(
+        return (await cls.get_config()).get('questions').get(
             await cls.get_field_from_state())
-       
+
+    @classmethod
+    async def get_config(cls):
+        return (await cls.get_current_state().get_data()).get('config')
 
     async def finish_dialog(self, message: Message, state: FSMContext):
         await message.answer(str(await state.get_data()),
@@ -100,7 +107,7 @@ class AuthMixin:
         if not from_user:
             return
 
-        user = await UserList.get_user( user_telegram_id=from_user.id)
+        user = await UserList.get_user(user_telegram_id=from_user.id)
 
         # excess_fields = {'dialog', 'current_field', 'loop_stop_word', 'user'}
         # data = dict((k, v) for k, v in data.items() if k not in excess_fields)
