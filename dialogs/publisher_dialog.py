@@ -38,7 +38,7 @@ class PublisherDialog(BaseDialog, AuthMixin):
 
     @classmethod
     async def begin(cls, message: Message):
-        await super().begin(message, publisher_dialog_cfg)
+        await super().begin(message.chat.id, publisher_dialog_cfg)
 
     @classmethod
     async def ask(cls, chat_id):

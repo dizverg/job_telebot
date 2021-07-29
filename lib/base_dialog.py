@@ -30,24 +30,29 @@ class BaseDialog(DialogInterfase):
         state = State()
 
     @classmethod
-    async def begin(cls, message: Message, config):
+    async def begin(cls, chat_id, config):
+        if type(config) == list:
+            config = {
+                'questions': {v: {'text': v, 'type': '*'} for v in config},
+                'order': config}
+
         await cls.States.first()
         await cls.get_current_state().update_data({'config': config})
-        await cls.ask(message.chat.id)
+        await cls.ask(chat_id)
 
-    @classmethod
-    async def ask(cls, chat_id):
-        current_question = await cls.current_question()
-        loop_stop_word = current_question.get('loop_stop_word')
+    # @classmethod
+    # async def ask(cls, chat_id):
+    #     current_question = await cls.current_question()
+    #     loop_stop_word = current_question.get('loop_stop_word')
 
-        if loop_stop_word:
-            keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-            keyboard.add(loop_stop_word)
-        else:
-            keyboard = ReplyKeyboardRemove()
+    #     if loop_stop_word:
+    #         keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    #         keyboard.add(loop_stop_word)
+    #     else:
+    #         keyboard = ReplyKeyboardRemove()
 
-        await bot_dispatcher.bot.send_message(
-            chat_id, current_question.get('text'), reply_markup=keyboard)
+    #     await bot_dispatcher.bot.send_message(
+    #         chat_id, current_question.get('text'), reply_markup=keyboard)
 
     @classmethod
     async def get_answer(cls, message: Message, state: FSMContext):
@@ -67,38 +72,39 @@ class BaseDialog(DialogInterfase):
 
     @classmethod
     async def current_question(cls) -> dict:
-        return (await cls.get_config()).get('questions').get(
+        questions = (await cls.get_config()).get('questions')
+        return questions.get(
             await cls.get_field_from_state())
 
     @classmethod
     async def get_config(cls):
         return (await cls.get_current_state().get_data()).get('config')
 
-    async def finish_dialog(self, message: Message, state: FSMContext):
-        await message.answer(str(await state.get_data()),
-                             reply_markup=(types.ReplyKeyboardRemove()))
+    # async def finish_dialog(self, message: Message, state: FSMContext):
+    #     await message.answer(str(await state.get_data()),
+    #                          reply_markup=(types.ReplyKeyboardRemove()))
 
-    async def get_answer(self, message: Message, state: FSMContext):
-        # dialog = await self.get_dialog(message.from_user)
-        await self.dialog.get_answer(message, state, self.finish)
-
-    # async def get_answer2(self, message: Message, state: FSMContext):
+    # async def get_answer(self, message: Message, state: FSMContext):
+    #     # dialog = await self.get_dialog(message.from_user)
     #     await self.dialog.get_answer(message, state, self.finish)
 
-    async def photo_callback(
-            self, message: Message, state: FSMContext):
-        file_id = message.photo[-1].file_id
-        await state.update_data({'file_id': file_id})
-        await self.get_answer(message, state)
+    # # async def get_answer2(self, message: Message, state: FSMContext):
+    #     await self.dialog.get_answer(message, state, self.finish)
 
-    async def video_callback(
-            self, message: Message, state: FSMContext, *arrgs, **kwargs):
-        file_id = message.video[-1].file_id
-        await state.update_data({'file_id': file_id})
-        await self.get_answer(message, state, self.finish)
+    # async def photo_callback(
+    #         self, message: Message, state: FSMContext):
+    #     file_id = message.photo[-1].file_id
+    #     await state.update_data({'file_id': file_id})
+    #     await self.get_answer(message, state)
 
-    async def finish(self, message: Message, state: FSMContext):
-        await state.finish()
+    # async def video_callback(
+    #         self, message: Message, state: FSMContext, *arrgs, **kwargs):
+    #     file_id = message.video[-1].file_id
+    #     await state.update_data({'file_id': file_id})
+    #     await self.get_answer(message, state, self.finish)
+
+    # async def finish(self, message: Message, state: FSMContext):
+    #     await state.finish()
 
 
 class AuthMixin:

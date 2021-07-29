@@ -3,17 +3,20 @@ from aiogram.types.callback_query import CallbackQuery
 from dialogs.respond_dialog import RespondDialog
 from lib.bot_dispatcher import applicant_bot
 
+
 async def applicant_respond_callback(callback_query: CallbackQuery):
     vacanse_id = callback_query.data.split(' ')[1]
-    
 
     await applicant_bot.answer_callback_query(
-        callback_query.id, 
+        callback_query.id,
         text=callback_query.data,
         show_alert=False)
-
-    response_dialog = RespondDialog.begin(
-        questions=Vacanse.find_by_id(vacanse_id).questions)
+    vacanse = Vacanse.find_by_id(vacanse_id)
+    response_dialog = await RespondDialog.begin(
+        chat_id=callback_query.from_user.id,
+        config=vacanse.questions
+            
+    )
 
     await response_dialog.begin(from_user=callback_query.from_user)
 

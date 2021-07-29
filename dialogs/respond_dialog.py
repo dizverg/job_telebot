@@ -1,91 +1,89 @@
-from aiogram.dispatcher.filters.state import State, StatesGroup
+from io import BytesIO
+from aiogram.types.inline_keyboard import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.dispatcher.storage import FSMContext
 from aiogram.types.message import Message
+from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.types.reply_keyboard import ReplyKeyboardMarkup, ReplyKeyboardRemove
 
-from lib.base_dialog import BaseDialog
-from lib.bot_dispatcher import applicant_bot, bot_dispatcher
-from lib.dialog import Dialog
+from cfg.config import CHANEL_ID
+from lib.base_dialog import AuthMixin, BaseDialog
+from lib.bot_dispatcher import bot_dispatcher, applicant_bot
+from models import Vacanse
 
 
-class RespondDialog(BaseDialog):
-    class RespondStatesGroup(StatesGroup):
-        state = State()
 
-    async def begin(self, from_user):
-        # await super().begin(from_user)
-        await bot_dispatcher.storage.reset_data(user=from_user.id)
-        await bot_dispatcher.storage.finish(user=from_user.id)
-        await bot_dispatcher.storage.set_state(chat=from_user.id, user=from_user.id,
-                                               state=self.dialog_base_state)
+class RespondDialog(BaseDialog, AuthMixin):
+    class States(StatesGroup):
+        discription = State()
+        questions = State()
+        photo = State()    
 
-        bot_dispatcher.register_message_handler(
-            callback=self.get_answer,
-            state=self.dialog_base_state,
-            content_types=['text'])
 
-        bot_dispatcher.register_message_handler(
-            callback=self.photo_callback,
-            state=self.dialog_base_state,
-            content_types=['photo'])
+    @classmethod
+    async def ask(cls, chat_id):
+        current_question = await cls.current_question()
+        loop_stop_word = current_question.get('loop_stop_word')
 
-        bot_dispatcher.register_message_handler(
-            callback=self.video_callback,
-            state=self.dialog_base_state,
-            content_types=['video'])
+        if loop_stop_word:
+            keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+            keyboard.add(loop_stop_word)
+        else:
+            keyboard = ReplyKeyboardRemove()
 
-        # bot_dispatcher.register_message_handler(
-        #     callback=self.get_answer2,
-        #     state='*',
-        #     # state=state,
-        #     content_types=['text'])
-        # await super().begin(from_user)
+        await bot_dispatcher.bot.send_message(
+            chat_id, current_question.get('text'), reply_markup=keyboard)
 
-        dialog = Dialog(config=self.config, bot=self.bot)
-
-        await self.dialog_base_state.set()
-        state = bot_dispatcher.current_state(chat=from_user.id)
-        await state.update_data({'dialog': dialog})
-        await dialog.ask(from_user_id=from_user.id,
-                         parameter_name=dialog.get_first())
-
-    async def finish(self, message: Message, state: FSMContext):
+    @classmethod
+    async def get_text_answer(cls, message: Message, state: FSMContext):
+        text = message.text
         data = await state.get_data()
-        # user_id = await self.get_user_id()
-        # if not user_id:
-        #     await message.answer('error',
-        #                          reply_markup=ReplyKeyboardRemove())
-        #     return
+        field = await cls.get_field_from_state()
 
-        # file_id = data.get('file_id')
-        # if file_id:
-        #     file: BytesIO = await bot.download_file_by_id(file_id)
+        loop_stop_word = (await cls.current_question()
+                          ).get('loop_stop_word')
 
-        # discriptions = data.get('discription')
+        if text != loop_stop_word:
+            new_data = data.get(field, []) + [text]
+            await state.update_data({field: new_data})
 
-        await message.answer(data)
+        if not loop_stop_word or text == loop_stop_word:
+            await cls.States.next()
 
-        # vacanse = Vacanse(
-        #     photo=file_id,
-        #     discriptions=discriptions,
-        #     questions=questions,
-        #     user_id=user_id)
+        await cls.ask(message.chat.id)
 
-        # if file_id or discriptions or questions:
-        #     vacanse.add()
+    @staticmethod
+    async def get_photo_answer(message: Message, state: FSMContext):
+        file_id = message.photo[-1].file_id
 
-        # discription = vacanse.get_discription()
-        # await message.answer()
-        # # show_preview_to_publicher
-        # await message.answer_video(video=file_id, caption=vacanse,
-        #                            reply_markup=ReplyKeyboardRemove())
+        data = await state.get_data()
 
-        # # publishing to chanel
-        # await applicant_bot.send_video(
-        #     CHANEL_ID,
-        #     video=await bot.download_file_by_id(data.get('file_id')),
-        #     caption=discription or '-',
-        #     reply_markup=InlineKeyboardMarkup().add(
-        #         InlineKeyboardButton(
-        #             'Отклонить', callback_data=f'reject {vacanse.id}')))
+        await state.finish()
 
-        await super().finish(message, state)
+        user_id = await AuthMixin.get_user_id(message.from_user)
+        if not user_id:
+            await message.answer('error', reply_markup=ReplyKeyboardRemove())
+            return
+
+        file: BytesIO = await message.bot.download_file_by_id(file_id)
+
+        discriptions = data.get('discription')
+        questions = data.get('questions')
+
+        vacanse = Vacanse(photo=file_id, discriptions=discriptions,
+                          questions=questions,  user_id=user_id)
+
+        if file or discriptions or questions:
+            vacanse.add()
+
+        # show_preview_to_publicher
+        await message.answer_photo(photo=file_id, caption=vacanse,
+                                   reply_markup=ReplyKeyboardRemove())
+
+        # publishing to chanel
+        from cfg.messages import MESSAGES
+        await applicant_bot.send_photo(
+            CHANEL_ID,
+            photo=await message.bot.download_file_by_id(file_id),
+            caption=vacanse.get_discription() or '-',
+            reply_markup=InlineKeyboardMarkup().add(
+                InlineKeyboardButton(MESSAGES['response'], callback_data=f'applicant_ui {vacanse.id}')))
