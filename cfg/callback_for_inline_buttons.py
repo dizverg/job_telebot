@@ -12,12 +12,11 @@ async def applicant_respond_callback(callback_query: CallbackQuery):
         text=callback_query.data,
         show_alert=False)
     vacanse = Vacanse.find_by_id(vacanse_id)
-    response_dialog = await RespondDialog.begin(
-        chat_id=callback_query.from_user.id,
-        config=vacanse.questions
-            
-    )
 
-    await response_dialog.begin(from_user=callback_query.from_user)
+    await RespondDialog.begin(
+        chat_id=callback_query.from_user.id,
+        config=vacanse.questions,
+        vacanse_id=vacanse_id
+    )
 
     # await bot.send_message(callback_query.from_user.id, callback_query.data)

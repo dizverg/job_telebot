@@ -1,3 +1,4 @@
+from dialogs.respond_dialog import RespondDialog
 from dialogs.publisher_dialog import PublisherDialog
 from aiogram.dispatcher.storage import FSMContext
 from aiogram.types.callback_query import CallbackQuery
@@ -38,6 +39,19 @@ if __name__ == '__main__':
             PublisherDialog.get_photo_answer,
             state=PublisherDialog.States.photo,
             content_types=['photo'])
+
+    elif MODE == 'applicant_ui':
+        bot_dispatcher.register_message_handler(
+            RespondDialog.get_text_answer,
+            state=RespondDialog.States,
+            content_types=['text'])
+
+        bot_dispatcher.register_message_handler(
+            RespondDialog.get_video_answer,
+            state=RespondDialog.States,
+            content_types=['video'])
+
+
 
     bot_dispatcher.register_callback_query_handler(
         applicant_respond_callback,

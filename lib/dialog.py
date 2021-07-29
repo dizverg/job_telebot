@@ -73,6 +73,7 @@ class Dialog:
             ).all()]
 
         keys = category_variants or parameter.get('variants') or []
+        
         loop_stop_word = parameter.get('loop_stop_word')
         if loop_stop_word:
             keys.append(loop_stop_word)

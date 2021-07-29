@@ -8,7 +8,7 @@ from dialogs.publisher_dialog import PublisherDialog
 
 
 async def publish(message: Message, state: FSMContext):
-    await PublisherDialog.begin(message)
+    await PublisherDialog.begin(message.chat.id)
 
 
 async def list_published(message: Message, state: FSMContext):

@@ -13,25 +13,10 @@ from models import Vacanse
 
 
 class RespondDialog(BaseDialog, AuthMixin):
-    class States(StatesGroup):
-        discription = State()
-        questions = State()
-        photo = State()    
+    
+    async def begin(cls, chat_id: int, config, vacanse_id):
+        await super().begin(chat_id, config, vacanse_id=vacanse_id)
 
-
-    @classmethod
-    async def ask(cls, chat_id):
-        current_question = await cls.current_question()
-        loop_stop_word = current_question.get('loop_stop_word')
-
-        if loop_stop_word:
-            keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-            keyboard.add(loop_stop_word)
-        else:
-            keyboard = ReplyKeyboardRemove()
-
-        await bot_dispatcher.bot.send_message(
-            chat_id, current_question.get('text'), reply_markup=keyboard)
 
     @classmethod
     async def get_text_answer(cls, message: Message, state: FSMContext):

@@ -17,7 +17,7 @@ class DialogInterfase:
         ...
 
     @abstractclassmethod
-    async def ask(cls, chat_id):
+    async def ask(cls, chat_id, question_number):
         ...
 
     @abstractclassmethod
@@ -30,32 +30,80 @@ class BaseDialog(DialogInterfase):
         state = State()
 
     @classmethod
-    async def begin(cls, chat_id, config):
+    async def begin(cls, chat_id: int, config, **kwargs):
         if type(config) == list:
             config = {
                 'questions': {v: {'text': v, 'type': '*'} for v in config},
                 'order': config}
 
         await cls.States.first()
-        await cls.get_current_state().update_data({'config': config})
-        await cls.ask(chat_id)
+        await cls.get_current_state().update_data({
+            'config': config,
+            'chat_id': chat_id,
+            **kwargs
+        })
+        await cls.ask(chat_id, 0)
 
-    # @classmethod
-    # async def ask(cls, chat_id):
-    #     current_question = await cls.current_question()
-    #     loop_stop_word = current_question.get('loop_stop_word')
+    @classmethod
+    async def ask(cls, chat_id, question_number):
+        state = bot_dispatcher.current_state(chat=chat_id)
+        await state.update_data({'question_number': question_number})
 
-    #     if loop_stop_word:
-    #         keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-    #         keyboard.add(loop_stop_word)
-    #     else:
-    #         keyboard = ReplyKeyboardRemove()
+        current_question = await cls.current_question()
 
-    #     await bot_dispatcher.bot.send_message(
-    #         chat_id, current_question.get('text'), reply_markup=keyboard)
+        loop_stop_word = current_question.get('loop_stop_word')
+        if loop_stop_word:
+            keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+            keyboard.add(loop_stop_word)
+        else:
+            keyboard = ReplyKeyboardRemove()
+
+        await bot_dispatcher.bot.send_message(
+            chat_id, current_question.get('text'), reply_markup=keyboard)
 
     @classmethod
     async def get_answer(cls, message: Message, state: FSMContext):
+        data = await state.get_data()
+        question_number = data.get('question_number')
+        current_question = await cls.current_question()
+
+        # check_result = await self.check_answer(
+        #     self.get_parameter_by_name(field_name), message)
+
+        # if not check_result:
+        #     await self.ask(
+        #         from_user_id=message.from_user.id,
+        #         parameter_name=field_name)
+        #     return
+
+        # field_value = (field_value if type(field_value) == list
+        #                else [field_value] if field_value else [])
+
+        # loop_stop_word = data.get('loop_stop_word')
+        # # if not loop_stop_word or loop_stop_word == answer:
+
+        # if message.photo:
+        #     await state.update_data({field_name + '_photo': message.photo[-1]})
+
+        # if message.video:
+        #     await state.update_data({field_name + '_video': message.video[-1]})
+
+        # if loop_stop_word != text:
+        #     await state.update_data({field_name: field_value + [text]})
+
+        # next_field = (field_name if loop_stop_word and loop_stop_word != text
+        #               else self.get_next(field_name))
+
+        # if next_field:
+        #     # print(str(await state.get_data()))
+        #     await self.ask(
+        #         from_user_id=message.from_user.id,
+        #         parameter_name=next_field)
+        # else:
+        #     await state.update_data({'current_field': None})
+        #     await on_finish(message=message, state=state)
+        #     await state.finish()
+
         await cls.dialog.get_answer(message, state, cls.finish)
 
     @classmethod
@@ -71,14 +119,24 @@ class BaseDialog(DialogInterfase):
         return (await cls.current_question()).get('text')
 
     @classmethod
+    async def get_data_from_state(cls):
+        return await cls.get_current_state().get_data()
+        
+
+    @classmethod
     async def current_question(cls) -> dict:
-        questions = (await cls.get_config()).get('questions')
-        return questions.get(
-            await cls.get_field_from_state())
+        config = await cls.get_config()
+        questions = config.get('questions')
+
+        data = await cls.get_data_from_state()
+        question_number = data.get('question_number')
+        question = config.get('order')[question_number]
+
+        return questions.get(question)
 
     @classmethod
     async def get_config(cls):
-        return (await cls.get_current_state().get_data()).get('config')
+        return (await cls.get_data_from_state()).get('config')
 
     # async def finish_dialog(self, message: Message, state: FSMContext):
     #     await message.answer(str(await state.get_data()),

@@ -34,25 +34,11 @@ class PublisherDialog(BaseDialog, AuthMixin):
     class States(StatesGroup):
         discription = State()
         questions = State()
-        photo = State()    
+        photo = State()
 
     @classmethod
-    async def begin(cls, message: Message):
-        await super().begin(message.chat.id, publisher_dialog_cfg)
-
-    @classmethod
-    async def ask(cls, chat_id):
-        current_question = await cls.current_question()
-        loop_stop_word = current_question.get('loop_stop_word')
-
-        if loop_stop_word:
-            keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-            keyboard.add(loop_stop_word)
-        else:
-            keyboard = ReplyKeyboardRemove()
-
-        await bot_dispatcher.bot.send_message(
-            chat_id, current_question.get('text'), reply_markup=keyboard)
+    async def begin(cls, chat_id):
+        await super().begin(chat_id, publisher_dialog_cfg)
 
     @classmethod
     async def get_text_answer(cls, message: Message, state: FSMContext):
