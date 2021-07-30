@@ -36,8 +36,11 @@ class BaseDialog(DialogInterfase):
                 'questions': {v: {'text': v, 'type': '*'} for v in config},
                 'order': config}
 
-        await cls.States.first()
-        await cls.get_current_state().update_data({
+
+        state = cls.get_current_state(chat = chat_id)
+        await state.set_state(cls.States.state)
+
+        await state.update_data({
             'config': config,
             'chat_id': chat_id,
             **kwargs
@@ -46,7 +49,7 @@ class BaseDialog(DialogInterfase):
 
     @classmethod
     async def ask(cls, chat_id, question_number):
-        state = bot_dispatcher.current_state(chat=chat_id)
+        state = cls.get_current_state(chat=chat_id)
         await state.update_data({'question_number': question_number})
 
         current_question = await cls.current_question()
@@ -104,11 +107,11 @@ class BaseDialog(DialogInterfase):
         #     await on_finish(message=message, state=state)
         #     await state.finish()
 
-        await cls.dialog.get_answer(message, state, cls.finish)
+        # await cls.dialog.get_answer(message, state, cls.finish)
 
     @classmethod
-    def get_current_state(cls):
-        return bot_dispatcher.current_state()
+    def get_current_state(cls, **kwargs):
+        return bot_dispatcher.current_state(**kwargs)
 
     @classmethod
     async def get_field_from_state(cls):
@@ -120,7 +123,8 @@ class BaseDialog(DialogInterfase):
 
     @classmethod
     async def get_data_from_state(cls):
-        return await cls.get_current_state().get_data()
+        state = cls.get_current_state()
+        return await state.get_data()
         
 
     @classmethod
@@ -129,14 +133,15 @@ class BaseDialog(DialogInterfase):
         questions = config.get('questions')
 
         data = await cls.get_data_from_state()
-        question_number = data.get('question_number')
+        question_number = data.get('question_number', 0)
         question = config.get('order')[question_number]
 
         return questions.get(question)
 
     @classmethod
     async def get_config(cls):
-        return (await cls.get_data_from_state()).get('config')
+        data = await cls.get_data_from_state()
+        return data.get('config')
 
     # async def finish_dialog(self, message: Message, state: FSMContext):
     #     await message.answer(str(await state.get_data()),

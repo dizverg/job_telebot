@@ -13,13 +13,14 @@ from models import Vacanse
 
 
 class RespondDialog(BaseDialog, AuthMixin):
-    
+    @classmethod
     async def begin(cls, chat_id: int, config, vacanse_id):
         await super().begin(chat_id, config, vacanse_id=vacanse_id)
 
 
     @classmethod
     async def get_text_answer(cls, message: Message, state: FSMContext):
+        state = cls.get_current_state()
         text = message.text
         data = await state.get_data()
         field = await cls.get_field_from_state()
