@@ -20,26 +20,32 @@ class RespondDialog(BaseDialog, AuthMixin):
 
     @classmethod
     async def get_text_answer(cls, message: Message, state: FSMContext):
-        state = cls.get_current_state()
+        # state = cls.get_current_state(message.ch)
+        chat_id = message.chat.id
         text = message.text
         data = await state.get_data()
-        field = await cls.get_field_from_state()
 
-        loop_stop_word = (await cls.current_question()
-                          ).get('loop_stop_word')
+        field = await cls.current_question_text(chat_id)
 
-        if text != loop_stop_word:
-            new_data = data.get(field, []) + [text]
-            await state.update_data({field: new_data})
+        # loop_stop_word = (await cls.current_question(chat_id)
+        #                   ).get('loop_stop_word')
 
-        if not loop_stop_word or text == loop_stop_word:
-            await cls.States.next()
+        # if text != loop_stop_word:
+        new_data = data.get(field, []) + [text]
+        await state.update_data({field: new_data})
 
-        await cls.ask(message.chat.id)
+        # if not loop_stop_word or text == loop_stop_word:
+        #     await cls.States.next()
+        question_number = data.get('question_number', 0)
+        max_number = len(data.get('config',dict()).get('order')) - 1
+        if question_number < max_number:
+            await cls.ask(chat_id, data.get('question_number', 0) + 1)
+        else:
+            await cls.on_finish(message, state)
 
     @staticmethod
-    async def get_photo_answer(message: Message, state: FSMContext):
-        file_id = message.photo[-1].file_id
+    async def get_video_answer(message: Message, state: FSMContext):
+        file_id = message.video[-1].file_id
 
         data = await state.get_data()
 
@@ -55,19 +61,19 @@ class RespondDialog(BaseDialog, AuthMixin):
         discriptions = data.get('discription')
         questions = data.get('questions')
 
-        vacanse = Vacanse(photo=file_id, discriptions=discriptions,
+        vacanse = Vacanse(video=file_id, discriptions=discriptions,
                           questions=questions,  user_id=user_id)
 
         if file or discriptions or questions:
             vacanse.add()
 
         # show_preview_to_publicher
-        await message.answer_photo(photo=file_id, caption=vacanse,
+        await message.answer_video(video=file_id, caption=vacanse,
                                    reply_markup=ReplyKeyboardRemove())
 
         # publishing to chanel
         from cfg.messages import MESSAGES
-        await applicant_bot.send_photo(
+        await applicant_bot.send_video(
             CHANEL_ID,
             photo=await message.bot.download_file_by_id(file_id),
             caption=vacanse.get_discription() or '-',

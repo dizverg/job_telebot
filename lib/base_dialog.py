@@ -37,7 +37,7 @@ class BaseDialog(DialogInterfase):
                 'order': config}
 
 
-        state = cls.get_current_state(chat = chat_id)
+        state = cls.get_current_state(chat_id)
         await state.set_state(cls.States.state)
 
         await state.update_data({
@@ -49,10 +49,10 @@ class BaseDialog(DialogInterfase):
 
     @classmethod
     async def ask(cls, chat_id, question_number):
-        state = cls.get_current_state(chat=chat_id)
+        state = cls.get_current_state(chat_id)
         await state.update_data({'question_number': question_number})
 
-        current_question = await cls.current_question()
+        current_question = await cls.current_question(chat_id)
 
         loop_stop_word = current_question.get('loop_stop_word')
         if loop_stop_word:
@@ -68,7 +68,7 @@ class BaseDialog(DialogInterfase):
     async def get_answer(cls, message: Message, state: FSMContext):
         data = await state.get_data()
         question_number = data.get('question_number')
-        current_question = await cls.current_question()
+        current_question = await cls.current_question(message.chat.id)
 
         # check_result = await self.check_answer(
         #     self.get_parameter_by_name(field_name), message)
@@ -110,37 +110,37 @@ class BaseDialog(DialogInterfase):
         # await cls.dialog.get_answer(message, state, cls.finish)
 
     @classmethod
-    def get_current_state(cls, **kwargs):
-        return bot_dispatcher.current_state(**kwargs)
+    def get_current_state(cls, chat_id):
+        return bot_dispatcher.current_state(chat=chat_id)
 
     @classmethod
-    async def get_field_from_state(cls):
-        return str(await cls.get_current_state().get_state()).split(':')[1]
+    async def get_field_from_state(cls, chat_id):
+        return str(await cls.get_current_state(chat_id).get_state()).split(':')[1]
 
     @classmethod
-    async def current_question_text(cls):
-        return (await cls.current_question()).get('text')
+    async def current_question_text(cls,chat_id):
+        return (await cls.current_question(chat_id)).get('text')
 
     @classmethod
-    async def get_data_from_state(cls):
-        state = cls.get_current_state()
+    async def get_data_from_state(cls, chat_id):
+        state = cls.get_current_state(chat_id)
         return await state.get_data()
         
 
     @classmethod
-    async def current_question(cls) -> dict:
-        config = await cls.get_config()
+    async def current_question(cls, chat_id) -> dict:
+        config = await cls.get_config(chat_id)
         questions = config.get('questions')
 
-        data = await cls.get_data_from_state()
+        data = await cls.get_data_from_state(chat_id)
         question_number = data.get('question_number', 0)
         question = config.get('order')[question_number]
 
         return questions.get(question)
 
     @classmethod
-    async def get_config(cls):
-        data = await cls.get_data_from_state()
+    async def get_config(cls, chat_id):
+        data = await cls.get_data_from_state(chat_id)
         return data.get('config')
 
     # async def finish_dialog(self, message: Message, state: FSMContext):
@@ -166,8 +166,9 @@ class BaseDialog(DialogInterfase):
     #     await state.update_data({'file_id': file_id})
     #     await self.get_answer(message, state, self.finish)
 
-    # async def finish(self, message: Message, state: FSMContext):
-    #     await state.finish()
+    @classmethod
+    async def on_finish(cls, message: Message, state: FSMContext):
+        await state.finish()
 
 
 class AuthMixin:

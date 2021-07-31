@@ -46,15 +46,15 @@ if __name__ == '__main__':
             state=RespondDialog.States,
             content_types=['text'])
 
-        bot_dispatcher.register_message_handler(
-            RespondDialog.get_text_answer,
-            state='*',
-            content_types=['text'])
-
         # bot_dispatcher.register_message_handler(
-        #     RespondDialog.get_video_answer,
-        #     state=RespondDialog.States,
-        #     content_types=['video'])
+        #     RespondDialog.get_text_answer,
+        #     state='*',
+        #     content_types=['text'])
+
+        bot_dispatcher.register_message_handler(
+            RespondDialog.get_video_answer,
+            state=RespondDialog.States,
+            content_types=['video'])
 
 
 

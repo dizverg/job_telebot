@@ -42,11 +42,12 @@ class PublisherDialog(BaseDialog, AuthMixin):
 
     @classmethod
     async def get_text_answer(cls, message: Message, state: FSMContext):
+        chat_id = message.chat.id
         text = message.text
         data = await state.get_data()
-        field = await cls.get_field_from_state()
+        field = await cls.get_field_from_state(chat_id)
 
-        loop_stop_word = (await cls.current_question()
+        loop_stop_word = (await cls.current_question(chat_id)
                           ).get('loop_stop_word')
 
         if text != loop_stop_word:
