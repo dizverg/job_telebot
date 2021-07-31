@@ -38,7 +38,7 @@ class BaseDialog(DialogInterfase):
 
 
         state = cls.get_current_state(chat_id)
-        await state.set_state(cls.States.state)
+        await state.set_state(await cls.States.first())
 
         await state.update_data({
             'config': config,
@@ -48,7 +48,7 @@ class BaseDialog(DialogInterfase):
         await cls.ask(chat_id, 0)
 
     @classmethod
-    async def ask(cls, chat_id, question_number):
+    async def ask(cls, chat_id, question_number=0):
         state = cls.get_current_state(chat_id)
         await state.update_data({'question_number': question_number})
 

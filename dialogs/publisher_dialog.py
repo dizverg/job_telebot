@@ -57,7 +57,16 @@ class PublisherDialog(BaseDialog, AuthMixin):
         if not loop_stop_word or text == loop_stop_word:
             await cls.States.next()
 
-        await cls.ask(message.chat.id)
+        # await cls.ask(message.chat.id)
+
+        question_number = data.get('question_number', 0)
+        max_number = len(data.get('config', dict()).get('order')) - 1
+        if question_number < max_number:
+            new_number = data.get('question_number', 0) + (
+                1 if not loop_stop_word or text == loop_stop_word else 0)
+            await cls.ask(chat_id, new_number)
+        else:
+            await cls.on_finish(message, state)
 
     @staticmethod
     async def get_photo_answer(message: Message, state: FSMContext):
