@@ -8,8 +8,7 @@ from aiogram.types.reply_keyboard import ReplyKeyboardMarkup, ReplyKeyboardRemov
 from cfg.config import CHANEL_ID
 from lib.base_dialog import AuthMixin, BaseDialog
 from lib.bot_dispatcher import bot_dispatcher, applicant_bot
-from models import Vacanse
-
+from models import Applicant, Vacanse
 
 
 class RespondDialog(BaseDialog, AuthMixin):
@@ -17,12 +16,11 @@ class RespondDialog(BaseDialog, AuthMixin):
     async def begin(cls, chat_id: int, config, vacanse_id):
         await super().begin(chat_id, config, vacanse_id=vacanse_id)
 
-
     @classmethod
     async def get_text_answer(cls, message: Message, state: FSMContext):
         # state = cls.get_current_state(message.ch)
         chat_id = message.chat.id
-        text = message.text
+
         data = await state.get_data()
 
         field = await cls.current_question_text(chat_id)
@@ -30,22 +28,26 @@ class RespondDialog(BaseDialog, AuthMixin):
         loop_stop_word = (await cls.current_question(chat_id)
                           ).get('loop_stop_word')
 
-        # if text != loop_stop_word:
-        new_data = data.get(field, []) + [text]
-        await state.update_data({field: new_data})
+        text = message.text
 
-        # if not loop_stop_word or text == loop_stop_word:
-        #     await cls.States.next()
+        if text != loop_stop_word:
+            new_data = data.get(field, []) + [text]
+            await state.update_data({field: new_data})
+
         question_number = data.get('question_number', 0)
-        max_number = len(data.get('config',dict()).get('order')) - 1
-        if question_number < max_number:
-            await cls.ask(chat_id, data.get('question_number', 0) + 1)
+        if not loop_stop_word or text == loop_stop_word:
+            if len(cls.States.states) > 1:
+                await cls.States.next()
+            question_number += 1
+
+        if question_number < len(data.get('config', dict()).get('order')):
+            await cls.ask(chat_id, question_number)
         else:
             await cls.on_finish(message, state)
 
     @staticmethod
     async def get_video_answer(message: Message, state: FSMContext):
-        file_id = message.video[-1].file_id
+        file_id = message.video.file_id
 
         data = await state.get_data()
 
@@ -58,20 +60,18 @@ class RespondDialog(BaseDialog, AuthMixin):
 
         file: BytesIO = await message.bot.download_file_by_id(file_id)
 
-        discriptions = data.get('discription')
-        questions = data.get('questions')
+        # discriptions = data.get('discription')
+        # questions = data.get('questions')
 
-        vacanse = Vacanse(video=file_id, discriptions=discriptions,
-                          questions=questions,  user_id=user_id)
+        applicant = Applicant(video=file_id, json=data, user_id=user_id)
 
-        if file or discriptions or questions:
-            vacanse.add()
+        applicant.add()
 
-        # show_preview_to_publicher
-        await message.answer_video(video=file_id, caption=vacanse,
+        
+        await message.answer_video(video=file_id, caption=data,
                                    reply_markup=ReplyKeyboardRemove())
 
-        # publishing to chanel
+        # TODO show_to_HR
         from cfg.messages import MESSAGES
         await applicant_bot.send_video(
             CHANEL_ID,

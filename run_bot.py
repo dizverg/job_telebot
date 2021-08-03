@@ -1,8 +1,9 @@
+
 from dialogs.respond_dialog import RespondDialog
 from dialogs.publisher_dialog import PublisherDialog
 from aiogram.dispatcher.storage import FSMContext
 from aiogram.types.callback_query import CallbackQuery
-from aiogram.types.message import Message
+from aiogram.types.message import ContentTypes, Message
 from cfg.main_menu import DEFAULT_MENU, PUBLISHER_MENU
 import logging
 from aiogram.utils import executor
@@ -53,10 +54,11 @@ if __name__ == '__main__':
 
         bot_dispatcher.register_message_handler(
             RespondDialog.get_video_answer,
+            # state='*',
             state=RespondDialog.States,
-            content_types=['video'])
-
-
+            content_types=[*ContentTypes.VIDEO,
+                           *ContentTypes.VIDEO_NOTE ]
+        )
 
     bot_dispatcher.register_callback_query_handler(
         applicant_respond_callback,

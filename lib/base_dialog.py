@@ -126,7 +126,8 @@ class BaseDialog(DialogInterfase):
 
     @classmethod
     async def get_field_from_state(cls, chat_id):
-        return str(await cls.get_current_state(chat_id).get_state()).split(':')[1]
+        return str(await cls.get_current_state(chat_id).get_state()
+                   ).split(':')[1]
 
     @classmethod
     async def current_question_text(cls, chat_id):
@@ -144,7 +145,8 @@ class BaseDialog(DialogInterfase):
 
         data = await cls.get_data_from_state(chat_id)
         question_number = data.get('question_number', 0)
-        question = config.get('order')[question_number]
+
+        question = list(config.get('order'))[question_number]
 
         return questions.get(question)
 
