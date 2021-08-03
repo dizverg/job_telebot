@@ -7,7 +7,7 @@ from aiogram.types.reply_keyboard import ReplyKeyboardMarkup, ReplyKeyboardRemov
 
 from models import UserList
 from lib.bot_dispatcher import bot_dispatcher
-from lib.dialog import Dialog
+
 
 
 class DialogInterfase:
