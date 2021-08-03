@@ -9,11 +9,10 @@ from models import UserList
 from lib.bot_dispatcher import bot_dispatcher
 
 
-
 class DialogInterfase:
 
     @abstractclassmethod
-    async def begin(cls, message: Message):
+    async def begin(cls, chat_id: int, config, **kwargs):
         ...
 
     @abstractclassmethod
@@ -24,18 +23,30 @@ class DialogInterfase:
     async def on_get_answer(cls, message: Message, state: FSMContext):
         ...
 
+    @abstractclassmethod
+    async def on_finish(cls, message: Message, state: FSMContext):
+        await state.finish()
+
 
 class BaseDialog(DialogInterfase):
     class States(StatesGroup):
         state = State()
 
+    @staticmethod
+    def prepare_config(config):
+        if type(config) == list:
+            questions = {
+                v if type(v) == str else v.get('name', v.get('text', '?')):
+                    {'text': v, 'type': 'text'} if type(v) == str else v
+                for v in config
+            }
+            config = {'questions': questions, 'order': questions}
+
+        return config
+
     @classmethod
     async def begin(cls, chat_id: int, config, **kwargs):
-        if type(config) == list:
-            config = {
-                'questions': {v: {'text': v, 'type': '*'} for v in config},
-                'order': config}
-
+        config = cls.prepare_config(config)
 
         state = cls.get_current_state(chat_id)
         await state.set_state(await cls.States.first())
@@ -118,14 +129,13 @@ class BaseDialog(DialogInterfase):
         return str(await cls.get_current_state(chat_id).get_state()).split(':')[1]
 
     @classmethod
-    async def current_question_text(cls,chat_id):
+    async def current_question_text(cls, chat_id):
         return (await cls.current_question(chat_id)).get('text')
 
     @classmethod
     async def get_data_from_state(cls, chat_id):
         state = cls.get_current_state(chat_id)
         return await state.get_data()
-        
 
     @classmethod
     async def current_question(cls, chat_id) -> dict:

@@ -15,7 +15,11 @@ async def applicant_respond_callback(callback_query: CallbackQuery):
 
     await RespondDialog.begin(
         chat_id=callback_query.from_user.id,
-        config=vacanse.questions,
+        config=vacanse.questions + [{
+            'name': 'video', 
+            'text':'Пожалуйста, загрузите видеоролик с самопрезентацией', 
+            'type': 'video'
+            }],
         vacanse_id=vacanse_id
     )
 

@@ -27,8 +27,8 @@ class RespondDialog(BaseDialog, AuthMixin):
 
         field = await cls.current_question_text(chat_id)
 
-        # loop_stop_word = (await cls.current_question(chat_id)
-        #                   ).get('loop_stop_word')
+        loop_stop_word = (await cls.current_question(chat_id)
+                          ).get('loop_stop_word')
 
         # if text != loop_stop_word:
         new_data = data.get(field, []) + [text]
