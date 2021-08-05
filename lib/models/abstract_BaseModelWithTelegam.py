@@ -6,6 +6,7 @@ from  lib.models.abstract_BaseModel import BaseModel
 
 
 class BaseModelWithTelegram(BaseModel):
+    """id, json, tags, telegram_id, telegram_date"""
     __abstract__ = True
     json = Column(JSON)
     tags = Column(ARRAY(UUID))

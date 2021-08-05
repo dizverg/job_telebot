@@ -57,12 +57,15 @@ if __name__ == '__main__':
             # state='*',
             state=RespondDialog.States,
             content_types=[*ContentTypes.VIDEO,
-                           *ContentTypes.VIDEO_NOTE ]
+                           *ContentTypes.VIDEO_NOTE]
         )
 
-    bot_dispatcher.register_callback_query_handler(
-        applicant_respond_callback,
-        lambda query: query.data.startswith(MODE), state="*")
+        bot_dispatcher.register_callback_query_handler(
+            applicant_respond_callback, state="*")
+
+    elif MODE == 'hr_ui':
+        bot_dispatcher.register_callback_query_handler(
+            hr_respond_callback, state="*")
 
     register_main_menu_handlers(DEFAULT_MENU)
 

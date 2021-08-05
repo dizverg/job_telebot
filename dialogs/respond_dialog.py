@@ -5,9 +5,9 @@ from aiogram.types.message import Message
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types.reply_keyboard import ReplyKeyboardMarkup, ReplyKeyboardRemove
 
-from cfg.config import CHANEL_ID
+from cfg.config import CHANEL_ID, HR_ID
 from lib.base_dialog import AuthMixin, BaseDialog
-from lib.bot_dispatcher import bot_dispatcher, applicant_bot
+from lib.bot_dispatcher import bot_dispatcher, applicant_bot, hr_bot
 from models import Applicant, Vacanse
 
 
@@ -67,15 +67,24 @@ class RespondDialog(BaseDialog, AuthMixin):
 
         applicant.add()
 
-        
         await message.answer_video(video=file_id, caption=data,
                                    reply_markup=ReplyKeyboardRemove())
 
         # TODO show_to_HR
         from cfg.messages import MESSAGES
-        await applicant_bot.send_video(
-            CHANEL_ID,
-            photo=await message.bot.download_file_by_id(file_id),
-            caption=vacanse.get_discription() or '-',
+        await hr_bot.send_video(
+            HR_ID,
+            video=await message.bot.download_file_by_id(file_id),
+            caption=data,
             reply_markup=InlineKeyboardMarkup().add(
-                InlineKeyboardButton(MESSAGES['response'], callback_data=f'applicant_ui {vacanse.id}')))
+                InlineKeyboardButton(
+                    MESSAGES['accept'], 
+                    callback_data=f'{applicant.id}'),
+                InlineKeyboardButton(
+                    MESSAGES['reject'], 
+                    callback_data=f'{applicant.id}')
+            )
+        )
+
+
+    

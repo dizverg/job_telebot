@@ -9,7 +9,10 @@ MESSAGES = {
     # 'invalid_key': invalid_key_message,
     'data_saved': data_saved_message,
     'bad_answer': bad_answer_message,
-    'response': 'Откликнуться'
+    'response': 'Откликнуться',
+    'accept': 'Пообщаться',
+    'reject': 'Отклонить' ,
+    'upload_video': 'Пожалуйста, загрузите видеоролик с самопрезентацией'
 }
 
 
