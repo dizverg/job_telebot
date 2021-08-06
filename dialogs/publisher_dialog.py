@@ -77,7 +77,7 @@ class PublisherDialog(BaseDialog, AuthMixin):
 
         await state.finish()
 
-        user_id = await AuthMixin.get_user_id(message.from_user)
+        user_id = AuthMixin.get_user_id(message.from_user)
         if not user_id:
             await message.answer('error', reply_markup=ReplyKeyboardRemove())
             return

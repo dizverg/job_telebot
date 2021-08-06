@@ -12,7 +12,7 @@ class UserList(BaseModelWithTelegram):
     message_id = Column(String(255))
 
     @classmethod
-    async def get_user(cls, user_telegram_id):
+    def get_user(cls, user_telegram_id):
         user = cls.filter_by(telegram_id=user_telegram_id).limit(1).all()
         if user:
             return user[0]

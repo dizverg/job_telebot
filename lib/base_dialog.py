@@ -184,12 +184,12 @@ class BaseDialog(DialogInterfase):
 
 
 class AuthMixin:
-
-    async def auth(from_user):
+    @staticmethod
+    def auth(from_user):
         if not from_user:
             return
 
-        user = await UserList.get_user(user_telegram_id=from_user.id)
+        user = UserList.get_user(user_telegram_id=from_user.id)
 
         # excess_fields = {'dialog', 'current_field', 'loop_stop_word', 'user'}
         # data = dict((k, v) for k, v in data.items() if k not in excess_fields)
@@ -209,6 +209,6 @@ class AuthMixin:
         return user
 
     @classmethod
-    async def get_user_id(cls, from_user):
-        user = await cls.auth(from_user)
+    def get_user_id(cls, from_user):
+        user = cls.auth(from_user)
         return user.id if user else None

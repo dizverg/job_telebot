@@ -56,7 +56,7 @@ class RespondDialog(BaseDialog, AuthMixin):
 
         await state.finish()
 
-        user_id = await AuthMixin.get_user_id(message.from_user)
+        user_id = AuthMixin.get_user_id(message.from_user)
         if not user_id:
             await message.answer('error', reply_markup=ReplyKeyboardRemove())
             return
@@ -73,6 +73,10 @@ class RespondDialog(BaseDialog, AuthMixin):
         await message.answer_video(video=file_id, caption=answers,
                                    reply_markup=ReplyKeyboardRemove())
 
+        show_user_link_callback_data = (f'show_user_link '
+                                        f'{message.from_user.id} '
+                                        # f'{message.from_user.full_name} '
+                                        f'{applicant.id} ')
         await message.bot.send_video(
             HR_ID,
             video=await message.bot.download_file_by_id(file_id),
@@ -80,8 +84,7 @@ class RespondDialog(BaseDialog, AuthMixin):
             reply_markup=InlineKeyboardMarkup().add(
                 InlineKeyboardButton(
                     MESSAGES['show_user_link'],
-                    callback_data=f'show_user_link '
-                    f'{message.from_user.id} {message.from_user.full_name}'),
+                    callback_data=show_user_link_callback_data),
                 InlineKeyboardButton(
                     MESSAGES['reject'],
                     callback_data=f'reject {applicant.id}')),
