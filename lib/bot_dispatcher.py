@@ -9,7 +9,7 @@ from cfg.config import TOKEN
 
 applicant_bot = Bot(token=tokens['applicant_ui'])
 publisher_bot = Bot(token=tokens['publisher_ui'])
-hr_bot = Bot(token=tokens['hr_ui'])
+# hr_bot = Bot(token=tokens['hr_ui'])
 
 
 bot = Bot(token=TOKEN)

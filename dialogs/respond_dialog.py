@@ -6,8 +6,9 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types.reply_keyboard import ReplyKeyboardMarkup, ReplyKeyboardRemove
 
 from cfg.config import CHANEL_ID, HR_ID
+from cfg.messages import MESSAGES
 from lib.base_dialog import AuthMixin, BaseDialog
-from lib.bot_dispatcher import bot_dispatcher, applicant_bot, hr_bot
+from lib.bot_dispatcher import bot_dispatcher, applicant_bot
 from models import Applicant, Vacanse
 
 
@@ -18,12 +19,12 @@ class RespondDialog(BaseDialog, AuthMixin):
 
     @classmethod
     async def get_text_answer(cls, message: Message, state: FSMContext):
-        # state = cls.get_current_state(message.ch)
+
         chat_id = message.chat.id
 
         data = await state.get_data()
 
-        field = await cls.current_question_text(chat_id)
+        question = await cls.current_question_text(chat_id)
 
         loop_stop_word = (await cls.current_question(chat_id)
                           ).get('loop_stop_word')
@@ -31,8 +32,10 @@ class RespondDialog(BaseDialog, AuthMixin):
         text = message.text
 
         if text != loop_stop_word:
-            new_data = data.get(field, []) + [text]
-            await state.update_data({field: new_data})
+            answers = data.get('answers', dict())
+            answer = answers.get(question, []) + [text]
+            answers.update({question: answer})
+            await state.update_data({'answers': answers})
 
         question_number = data.get('question_number', 0)
         if not loop_stop_word or text == loop_stop_word:
@@ -58,33 +61,36 @@ class RespondDialog(BaseDialog, AuthMixin):
             await message.answer('error', reply_markup=ReplyKeyboardRemove())
             return
 
-        file: BytesIO = await message.bot.download_file_by_id(file_id)
+        # file: BytesIO = await message.bot.download_file_by_id(file_id)
 
-        # discriptions = data.get('discription')
-        # questions = data.get('questions')
+        answers = '\n\n'.join([f'{question}:\n' + ';\n'.join(answer)
+                               for question, answer in data.get('answers', dict()).items()])
 
-        applicant = Applicant(video=file_id, json=data, user_id=user_id)
+        applicant = Applicant(video=file_id, json=answers, user_id=user_id)
 
         applicant.add()
 
-        await message.answer_video(video=file_id, caption=data,
+        await message.answer_video(video=file_id, caption=answers,
                                    reply_markup=ReplyKeyboardRemove())
 
-        # TODO show_to_HR
-        from cfg.messages import MESSAGES
-        await hr_bot.send_video(
+        await message.bot.send_video(
             HR_ID,
             video=await message.bot.download_file_by_id(file_id),
-            caption=data,
+            caption=answers,
             reply_markup=InlineKeyboardMarkup().add(
                 InlineKeyboardButton(
-                    MESSAGES['accept'], 
-                    callback_data=f'{applicant.id}'),
+                    MESSAGES['show_user_link'],
+                    callback_data=f'show_user_link '
+                    f'{message.from_user.id} {message.from_user.full_name}'),
                 InlineKeyboardButton(
-                    MESSAGES['reject'], 
-                    callback_data=f'{applicant.id}')
-            )
+                    MESSAGES['reject'],
+                    callback_data=f'reject {applicant.id}')),
+            parse_mode="Markdown"
         )
 
-
-    
+        await message.answer(
+            text=MESSAGES['response_registred']
+        )
+        # await message.bot.send_message(HR_ID,
+        #                           '[User](tg://user?id=275875419)',
+        #                           parse_mode="Markdown")

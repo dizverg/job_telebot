@@ -6,6 +6,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types.reply_keyboard import ReplyKeyboardMarkup, ReplyKeyboardRemove
 
 from cfg.config import CHANEL_ID
+from cfg.messages import MESSAGES
 from lib.base_dialog import AuthMixin, BaseDialog
 from lib.bot_dispatcher import bot_dispatcher, applicant_bot
 from models import Vacanse
@@ -97,10 +98,10 @@ class PublisherDialog(BaseDialog, AuthMixin):
                                    reply_markup=ReplyKeyboardRemove())
 
         # publishing to chanel
-        from cfg.messages import MESSAGES
         await applicant_bot.send_photo(
             CHANEL_ID,
             photo=await message.bot.download_file_by_id(file_id),
             caption=vacanse.get_discription() or '-',
             reply_markup=InlineKeyboardMarkup().add(
-                InlineKeyboardButton(MESSAGES['response'], callback_data=f'applicant_ui {vacanse.id}')))
+                InlineKeyboardButton(MESSAGES['response'], 
+                callback_data=f'respond {vacanse.id}')))

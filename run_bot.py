@@ -1,6 +1,5 @@
 
-from dialogs.respond_dialog import RespondDialog
-from dialogs.publisher_dialog import PublisherDialog
+
 from aiogram.dispatcher.storage import FSMContext
 from aiogram.types.callback_query import CallbackQuery
 from aiogram.types.message import ContentTypes, Message
@@ -10,7 +9,10 @@ from aiogram.utils import executor
 
 from lib.bot_dispatcher import bot_dispatcher
 from cfg.config import LOG, MODE
-from cfg.callback_for_inline_buttons import applicant_respond_callback
+from cfg.callback_for_inline_buttons import applicant_respond_callback, hr_respond_callback, show_user_link_respond_callback
+
+from dialogs.respond_dialog import RespondDialog
+from dialogs.publisher_dialog import PublisherDialog
 
 logging.basicConfig(**LOG)
 
@@ -61,11 +63,17 @@ if __name__ == '__main__':
         )
 
         bot_dispatcher.register_callback_query_handler(
-            applicant_respond_callback, state="*")
+            applicant_respond_callback,
+            lambda query: query.data.startswith('respond'), state="*")
 
-    elif MODE == 'hr_ui':
+    # elif MODE == 'hr_ui':
         bot_dispatcher.register_callback_query_handler(
-            hr_respond_callback, state="*")
+            show_user_link_respond_callback,
+            lambda query: query.data.startswith('show_user_link'), state="*")
+            
+        bot_dispatcher.register_callback_query_handler(
+            hr_respond_callback,
+            lambda query: query.data.startswith('reject'), state="*")
 
     register_main_menu_handlers(DEFAULT_MENU)
 

@@ -9,7 +9,7 @@ LOG = {'format': "%(asctime)s - [%(levelname)s] - %(name)s - "
        'level': logging.INFO}
 
 CHANEL_ID = -1001568792005
-HR_ID = 262436363
+HR_ID = -1001347207892
 
 class DB_PG:
     filename = 'job_telebot.db'
