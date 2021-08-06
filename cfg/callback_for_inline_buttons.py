@@ -13,7 +13,10 @@ async def applicant_respond_callback(callback_query: CallbackQuery):
     #     callback_query.id,
     #     text=MESSAGES['response_registred'],
     #     show_alert=False)
+
     vacanse = Vacanse.find_by_id(vacanse_id)
+    
+    # TODO check not responsed eat
 
     from dialogs.respond_dialog import RespondDialog
     await RespondDialog.begin(
