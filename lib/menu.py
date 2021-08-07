@@ -1,5 +1,5 @@
 import datetime
-from messages import MENU, MESSAGES
+from cfg.messages import MENU, MESSAGES
 from aiogram import types, Dispatcher
 from models import Category, CategoryItem
 

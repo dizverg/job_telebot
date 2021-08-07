@@ -17,9 +17,9 @@ class Vacanse(BaseModelWithTelegram):
         nullable=False, index=True)
 
     def __repr__(self):
-        discription = f"Описание ваансии:\n" + self.get_discription()
-        questions = f"Вопросы:\n" + '\n'.join(self.questions if self.questions else "")
+        discription = f"Описание ваансии:\n{self.get_discription()}"  
+        questions = f"Вопросы:\n" + '\n'.join(self.questions) if self.questions else ""
         return '\n\n'.join((discription, questions))
 
     def get_discription(self):
-        return '\n'.join( self.discriptions if self.discriptions else "")
+        return '\n'.join(self.discriptions) if self.discriptions else " "

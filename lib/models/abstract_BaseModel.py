@@ -8,6 +8,7 @@ from lib.db import Base, Session
 
 
 class BaseModel(Base):
+    """id"""
     __abstract__ = True
     # id = Column(Integer, primary_key=True,  autoincrement=True)
     id = Column(UUID, default=lambda: str(uuid.uuid4()), primary_key=True)
@@ -26,6 +27,7 @@ class BaseModel(Base):
             session.commit()
             return self.id
 
+    
     def update(self, id, data):
         with Session() as session:
             self.filter_by(id=id).update(data)
