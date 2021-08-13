@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, TIMESTAMP
 from sqlalchemy import JSON
 from sqlalchemy.dialects.postgresql import UUID, ARRAY
 
-from  lib.models.abstract_BaseModel import BaseModel
+from lib.abstract_BaseModel import BaseModel
 
 
 class BaseModelWithTelegram(BaseModel):

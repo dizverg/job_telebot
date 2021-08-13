@@ -82,7 +82,7 @@ class PublisherDialog(BaseDialog, AuthMixin):
             await message.answer('error', reply_markup=ReplyKeyboardRemove())
             return
 
-        file: BytesIO = await message.bot.download_file_by_id(file_id)
+        # file: BytesIO = await message.bot.download_file_by_id(file_id)
 
         descriptions = data.get('description')
         questions = data.get('questions')
@@ -90,18 +90,18 @@ class PublisherDialog(BaseDialog, AuthMixin):
         vacancy = Vacancy(photo=file_id, descriptions=descriptions,
                           questions=questions,  user_id=user_id)
 
-        if file or descriptions or questions:
+        if file_id or descriptions or questions:
             vacancy.add()
 
-        # show_preview_to_publicher
+        # show_preview_to_publisher
         await message.answer_photo(photo=file_id, caption=vacancy,
                                    reply_markup=ReplyKeyboardRemove())
 
-        # publishing to chanel
-        await applicant_bot.send_photo(
-            CHANNEL_ID,
-            photo=await message.bot.download_file_by_id(file_id),
-            caption=vacancy.get_description() or '-',
-            reply_markup=InlineKeyboardMarkup().add(
-                InlineKeyboardButton(MESSAGES['response'], 
-                callback_data=f'respond {vacancy.id}')))
+        # publishing to channel
+        # await applicant_bot.send_photo(
+        #     CHANNEL_ID,
+        #     photo=await message.bot.download_file_by_id(file_id),
+        #     caption=vacancy.get_description() or '-',
+        #     reply_markup=InlineKeyboardMarkup().add(
+        #         InlineKeyboardButton(MESSAGES['response'],
+        #         callback_data=f'respond {vacancy.id}')))

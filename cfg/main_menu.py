@@ -1,7 +1,9 @@
 from aiogram.dispatcher import FSMContext
-from aiogram.types import Message, ReplyKeyboardRemove
+from aiogram.types import Message, ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.types.reply_keyboard import KeyboardButton, ReplyKeyboardMarkup
 
+from cfg.messages import MESSAGES
+from lib.bot_dispatcher import publisher_bot
 from models import Applicant
 from models import Vacancy
 from dialogs.publisher_dialog import PublisherDialog
@@ -16,6 +18,22 @@ async def list_published(message: Message, state: FSMContext):
         await message.answer_photo(photo=vacancy.photo,
                                    caption=vacancy,
                                    reply_markup=ReplyKeyboardRemove())
+
+
+async def list_vacancies(message: Message, state: FSMContext):
+    for vacancy in Vacancy.all():
+        await message.bot.send_photo(
+            chat_id=message.chat.id,
+            photo=await publisher_bot.download_file_by_id(vacancy.photo),
+            caption=vacancy.get_description() or '-',
+            reply_markup=InlineKeyboardMarkup().add(
+                InlineKeyboardButton(MESSAGES['response'],
+                                     callback_data=f'respond {vacancy.id}')))
+
+        #
+        # await message.answer_photo(photo=await publisher_bot.download_file_by_id(vacancy.photo),
+        #                            caption=vacancy,
+        #                            reply_markup=ReplyKeyboardRemove())
 
 
 async def list_waiting_applicants(message: Message, state: FSMContext):
@@ -51,9 +69,10 @@ PUBLISHER_MENU = {
 
 DEFAULT_MENU = {
     'stat': {'title': 'Статистика', 'action': show_stat},
+    'vacancy': {'title': 'Просмотреть вакансии',
+                'action': list_vacancies},
     # 'help': {'title': 'Справка', 'action': show_help},
 }
-
 
 # async def show_help(message: Message, state: FSMContext):
 #     await message.answer(MESSAGES['help'], reply_markup=ReplyKeyboardRemove())

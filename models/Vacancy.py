@@ -2,7 +2,7 @@ from sqlalchemy import Column, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID, ARRAY, JSON, TEXT
 from sqlalchemy.dialects.postgresql.base import BYTEA
 
-from lib.models.abstract_BaseModelWithTelegam import BaseModelWithTelegram
+from lib.abstract_BaseModelWithTelegam import BaseModelWithTelegram
 from models.UserList import UserList
 
 
@@ -21,5 +21,5 @@ class Vacancy(BaseModelWithTelegram):
         questions = f"Вопросы:\n" + '\n'.join(self.questions) if self.questions else ""
         return '\n\n'.join((description, questions))
 
-    def get_discription(self):
-        return '\n'.join(self.discriptions) if self.discriptions else " "
+    def get_description(self):
+        return '\n'.join(self.descriptions) if self.descriptions else " "

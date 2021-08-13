@@ -1,3 +1,4 @@
+import abc
 from abc import abstractclassmethod
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram import types
@@ -9,26 +10,32 @@ from models import UserList
 from lib.bot_dispatcher import bot_dispatcher
 
 
-class DialogInterfase:
+class DialogInterface:
 
-    @abstractclassmethod
+    @staticmethod
+    @abc.abstractmethod
     async def begin(cls, chat_id: int, config, **kwargs):
         ...
 
-    @abstractclassmethod
+    @staticmethod
+    @abc.abstractmethod
     async def ask(cls, chat_id, question_number):
         ...
 
-    @abstractclassmethod
+    @staticmethod
+    @abc.abstractmethod
     async def on_get_answer(cls, message: Message, state: FSMContext):
         ...
 
-    @abstractclassmethod
+    @staticmethod
+    @abc.abstractmethod
     async def on_finish(cls, message: Message, state: FSMContext):
         await state.finish()
 
 
-class BaseDialog(DialogInterfase):
+class BaseDialog(DialogInterface):
+    __abstract__ = True
+
     class States(StatesGroup):
         state = State()
 
