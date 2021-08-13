@@ -89,7 +89,7 @@ if __name__ == '__main__':
     # asyncio.run(send_message())
     # loop = asyncio.new_event_loop()
     # loop.run_until_complete(
-    #     applicant_bot.send_message( CHANEL_ID,'test3'))
+    #     applicant_bot.send_message( CHANNEL_ID,'test3'))
 # asyncio.set_event_loop(loop)
 # loop.run_until_complete(
 # executor.start_polling(bot_dispatcher))

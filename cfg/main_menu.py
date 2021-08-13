@@ -3,6 +3,7 @@ from aiogram.types import Message, ReplyKeyboardRemove, InlineKeyboardMarkup, In
 from aiogram.types.reply_keyboard import KeyboardButton, ReplyKeyboardMarkup
 
 from cfg.messages import MESSAGES
+from lib.base_dialog import AuthMixin
 from lib.bot_dispatcher import publisher_bot
 from models import Applicant
 from models import Vacancy
@@ -21,7 +22,11 @@ async def list_published(message: Message, state: FSMContext):
 
 
 async def list_vacancies(message: Message, state: FSMContext):
-    for vacancy in Vacancy.all():
+    applicants = Applicant.filter_by(user_id=AuthMixin.get_user_id(message.from_user)).all()
+    used_vacancies = [applicant.vacancy_id for applicant in applicants]
+    for vacancy in Vacancy.filter(Vacancy.id not in used_vacancies).all():
+        if vacancy.id in used_vacancies:
+            continue
         await message.bot.send_photo(
             chat_id=message.chat.id,
             photo=await publisher_bot.download_file_by_id(vacancy.photo),
