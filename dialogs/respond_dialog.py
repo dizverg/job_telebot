@@ -63,10 +63,12 @@ class RespondDialog(BaseDialog, AuthMixin):
 
         # file: BytesIO = await message.bot.download_file_by_id(file_id)
 
-        answers = '\n\n'.join([f'{question}:\n' + ';\n'.join(answer)
-                               for question, answer in data.get('answers', dict()).items()])
+        answers = '\n\n'.join(
+            [f'{question}:\n' + ';\n'.join(answer)
+             for question, answer in data.get('answers', dict()).items()])
 
-        applicant = Applicant(video=file_id, json=answers, user_id=user_id)
+        applicant = Applicant(video=file_id, json=answers, user_id=user_id,
+                              vacancy_id=data.get('vacancy_id'))
 
         applicant.add()
 
@@ -88,11 +90,12 @@ class RespondDialog(BaseDialog, AuthMixin):
                 InlineKeyboardButton(
                     MESSAGES['reject'],
                     callback_data=f'reject {applicant.id}')),
+
             parse_mode="Markdown"
         )
 
         await message.answer(
-            text=MESSAGES['response_registred']
+            text=MESSAGES['response_registered']
         )
         # await message.bot.send_message(HR_ID,
         #                           '[User](tg://user?id=275875419)',

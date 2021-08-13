@@ -13,6 +13,6 @@ MESSAGES = {
     'accept': 'Пообщаться',
     'reject': 'Отклонить',
     'upload_video': 'Пожалуйста, загрузите видеоролик с самопрезентацией',
-    'response_registred': 'Заявка зарегистрирована',
-    'show_user_link': 'Показать кандидата'
+    'response_registered': 'Заявка зарегистрирована',
+    'show_user_link': 'Показать'
 }

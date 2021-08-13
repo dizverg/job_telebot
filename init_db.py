@@ -1,4 +1,4 @@
-from models import Applicant, Vacancy, UserList
+from models import Vacancy, UserList, Applicant
 from lib.db import Base, engine
 
 

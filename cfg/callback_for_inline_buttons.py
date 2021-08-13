@@ -7,21 +7,22 @@ from cfg.messages import MESSAGES
 
 
 async def applicant_respond_callback(callback_query: CallbackQuery):
+    await callback_query.message.delete_reply_markup()
     vacancy_id = callback_query.data.split()[1]
 
     # await applicant_bot.answer_callback_query(
     #     callback_query.id,
-    #     text=MESSAGES['response_registred'],
+    #     text=MESSAGES['response_registered'],
     #     show_alert=False)
 
     vacancy = Vacancy.find_by_id(vacancy_id)
 
-    # TODO check not responsed eat
+    # TODO check not response
 
     from dialogs.respond_dialog import RespondDialog
     await RespondDialog.begin(
         chat_id=callback_query.from_user.id,
-        config=vacancy.questions + [{
+        config=(vacancy.questions or []) + [{
             'name': 'video',
             'text': MESSAGES['upload_video'],
             'type': 'video'
@@ -29,14 +30,14 @@ async def applicant_respond_callback(callback_query: CallbackQuery):
         vacancy_id=vacancy_id
     )
 
-    # await bot.send_message(callback_query.from_user.id, callback_query.data)
+    await callback_query.bot.answer_callback_query(callback_query.id)
 
 
 async def hr_respond_callback(callback_query: CallbackQuery):
     _, applicant_id = callback_query.data.split()
     Applicant().update(applicant_id, {'accepted': False})
 
-    await callback_query.message.delete()
+    await callback_query.message.delete_reply_markup()
     await callback_query.answer('Отклонено')
     # await bot.send_message(callback_query.from_user.id, callback_query.data)
 
