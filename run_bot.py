@@ -1,5 +1,3 @@
-
-
 from aiogram.dispatcher.storage import FSMContext
 from aiogram.types.callback_query import CallbackQuery
 from aiogram.types.message import ContentTypes, Message
@@ -9,7 +7,8 @@ from aiogram.utils import executor
 
 from lib.bot_dispatcher import bot_dispatcher
 from cfg.config import LOG, MODE
-from cfg.callback_for_inline_buttons import applicant_respond_callback, hr_respond_callback, show_user_link_respond_callback
+from cfg.callback_for_inline_buttons import applicant_respond_callback, hr_respond_callback, \
+    show_user_link_respond_callback
 
 from dialogs.respond_dialog import RespondDialog
 from dialogs.publisher_dialog import PublisherDialog
@@ -31,7 +30,7 @@ if __name__ == '__main__':
         bot_dispatcher.register_message_handler(
             PublisherDialog.get_text_answer,
             state=[PublisherDialog.States.questions,
-                   PublisherDialog.States.discription],
+                   PublisherDialog.States.description],
             content_types=['text'])
 
         # bot_dispatcher.register_message_handler(
@@ -66,20 +65,22 @@ if __name__ == '__main__':
             applicant_respond_callback,
             lambda query: query.data.startswith('respond'), state="*")
 
-    # elif MODE == 'hr_ui':
+        # elif MODE == 'hr_ui':
         bot_dispatcher.register_callback_query_handler(
             show_user_link_respond_callback,
             lambda query: query.data.startswith('show_user_link'), state="*")
-            
+
         bot_dispatcher.register_callback_query_handler(
             hr_respond_callback,
             lambda query: query.data.startswith('reject'), state="*")
 
     register_main_menu_handlers(DEFAULT_MENU)
 
+
     @bot_dispatcher.callback_query_handler()
     async def default_callback(callback_query: CallbackQuery):
         await bot_dispatcher.bot.answer_callback_query(callback_query.id)
+
 
     executor.start_polling(bot_dispatcher)
 
@@ -87,6 +88,6 @@ if __name__ == '__main__':
     # loop = asyncio.new_event_loop()
     # loop.run_until_complete(
     #     applicant_bot.send_message( CHANEL_ID,'test3'))
-   # asyncio.set_event_loop(loop)
-    # loop.run_until_complete(
-    # executor.start_polling(bot_dispatcher))
+# asyncio.set_event_loop(loop)
+# loop.run_until_complete(
+# executor.start_polling(bot_dispatcher))

@@ -9,7 +9,7 @@ from cfg.config import CHANNEL_ID
 from cfg.messages import MESSAGES
 from lib.base_dialog import AuthMixin, BaseDialog
 from lib.bot_dispatcher import bot_dispatcher, applicant_bot
-from models import Vacanse
+from models import Vacancy
 
 
 publisher_dialog_cfg = {
@@ -18,7 +18,7 @@ publisher_dialog_cfg = {
             'text': 'Фото',
             'type': 'photo',
         },
-        'discription': {
+        'description': {
             'text': 'Опишите вакансию',
             'loop_stop_word': 'Закончить с описанием',
         },
@@ -27,13 +27,13 @@ publisher_dialog_cfg = {
             'loop_stop_word': 'Достаточно вопросов'
         }
     },
-    'order': ['discription', 'questions', 'photo', ]
+    'order': ['description', 'questions', 'photo', ]
 }
 
 
 class PublisherDialog(BaseDialog, AuthMixin):
     class States(StatesGroup):
-        discription = State()
+        description = State()
         questions = State()
         photo = State()
 
@@ -84,24 +84,24 @@ class PublisherDialog(BaseDialog, AuthMixin):
 
         file: BytesIO = await message.bot.download_file_by_id(file_id)
 
-        discriptions = data.get('discription')
+        descriptions = data.get('description')
         questions = data.get('questions')
 
-        vacanse = Vacanse(photo=file_id, discriptions=discriptions,
+        vacancy = Vacancy(photo=file_id, descriptions=descriptions,
                           questions=questions,  user_id=user_id)
 
-        if file or discriptions or questions:
-            vacanse.add()
+        if file or descriptions or questions:
+            vacancy.add()
 
         # show_preview_to_publicher
-        await message.answer_photo(photo=file_id, caption=vacanse,
+        await message.answer_photo(photo=file_id, caption=vacancy,
                                    reply_markup=ReplyKeyboardRemove())
 
         # publishing to chanel
         await applicant_bot.send_photo(
             CHANNEL_ID,
             photo=await message.bot.download_file_by_id(file_id),
-            caption=vacanse.get_discription() or '-',
+            caption=vacancy.get_description() or '-',
             reply_markup=InlineKeyboardMarkup().add(
                 InlineKeyboardButton(MESSAGES['response'], 
-                callback_data=f'respond {vacanse.id}')))
+                callback_data=f'respond {vacancy.id}')))

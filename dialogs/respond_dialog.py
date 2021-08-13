@@ -9,13 +9,13 @@ from cfg.config import CHANNEL_ID, HR_ID
 from cfg.messages import MESSAGES
 from lib.base_dialog import AuthMixin, BaseDialog
 from lib.bot_dispatcher import bot_dispatcher, applicant_bot
-from models import Applicant, Vacanse
+from models import Applicant, Vacancy
 
 
 class RespondDialog(BaseDialog, AuthMixin):
     @classmethod
-    async def begin(cls, chat_id: int, config, vacanse_id):
-        await super().begin(chat_id, config, vacanse_id=vacanse_id)
+    async def begin(cls, chat_id: int, config, vacancy_id):
+        await super().begin(chat_id, config, vacancy_id=vacancy_id)
 
     @classmethod
     async def get_text_answer(cls, message: Message, state: FSMContext):

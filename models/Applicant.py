@@ -1,4 +1,4 @@
-from models.Vacanse import Vacanse
+from models.Vacancy import Vacancy
 from aiogram.types import video
 from sqlalchemy import Column, String, Boolean
 from sqlalchemy import Column, ForeignKey
@@ -15,8 +15,8 @@ class Applicant(BaseModelWithTelegram):
         UUID, ForeignKey(f'{UserList.__tablename__}.id', ondelete='CASCADE'),
         nullable=False, index=True)
 
-    # vacanse_id = Column(
-    #     UUID, ForeignKey(f'{Vacanse.__tablename__}.id', ondelete='CASCADE'),
+    # vacancy_id = Column(
+    #     UUID, ForeignKey(f'{Vacancy.__tablename__}.id', ondelete='CASCADE'),
     #     nullable=False, index=True)
 
     video = Column(TEXT)

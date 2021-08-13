@@ -3,7 +3,7 @@ from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram.types.reply_keyboard import KeyboardButton, ReplyKeyboardMarkup
 
 from models import Applicant
-from models import Vacanse
+from models import Vacancy
 from dialogs.publisher_dialog import PublisherDialog
 
 
@@ -12,9 +12,9 @@ async def publish(message: Message, state: FSMContext):
 
 
 async def list_published(message: Message, state: FSMContext):
-    for vacanse in Vacanse.all():
-        await message.answer_photo(photo=vacanse.photo,
-                                   caption=vacanse,
+    for vacancy in Vacancy.all():
+        await message.answer_photo(photo=vacancy.photo,
+                                   caption=vacancy,
                                    reply_markup=ReplyKeyboardRemove())
 
 
@@ -27,12 +27,12 @@ async def show_stat(message: Message, state: FSMContext):
     markup_request = ReplyKeyboardMarkup(resize_keyboard=True).add(
         KeyboardButton('Отправить свой контакт ☎️', request_contact=True))
 
-    vacanse_count = Vacanse.query().count()
+    vacancy_count = Vacancy.query().count()
     waiting_count = Applicant.filter_by(accepted=None).count()
     accepted_count = Applicant.filter_by(accepted=True).count()
     rejected_count = Applicant.filter_by(accepted=False).count()
     await message.answer(
-        f"Опубликовано вакансий: {vacanse_count}\n"
+        f"Опубликовано вакансий: {vacancy_count}\n"
         f"Одобрено: {accepted_count}\n"
         f"Отклонено: {rejected_count}\n"
         f"В ожидании: {waiting_count}\n",

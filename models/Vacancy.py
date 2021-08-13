@@ -6,10 +6,10 @@ from lib.models.abstract_BaseModelWithTelegam import BaseModelWithTelegram
 from models.UserList import UserList
 
 
-class Vacanse(BaseModelWithTelegram):
-    __tablename__ = 'vacanse'
+class Vacancy(BaseModelWithTelegram):
+    __tablename__ = 'vacancy'
     photo = Column(TEXT)
-    discriptions = Column(ARRAY(TEXT, dimensions=1))
+    descriptions = Column(ARRAY(TEXT, dimensions=1))
     questions = Column(ARRAY(TEXT, dimensions=1))
 
     user_id = Column(
@@ -17,9 +17,9 @@ class Vacanse(BaseModelWithTelegram):
         nullable=False, index=True)
 
     def __repr__(self):
-        discription = f"Описание ваансии:\n{self.get_discription()}"  
+        description = f"Описание ваансии:\n{self.get_description()}"
         questions = f"Вопросы:\n" + '\n'.join(self.questions) if self.questions else ""
-        return '\n\n'.join((discription, questions))
+        return '\n\n'.join((description, questions))
 
     def get_discription(self):
         return '\n'.join(self.discriptions) if self.discriptions else " "

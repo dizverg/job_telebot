@@ -1,32 +1,32 @@
 from aiogram.types.inline_keyboard import InlineKeyboardMarkup
 from aiogram.types.reply_keyboard import ReplyKeyboardRemove
-from models import Applicant, Vacanse
+from models import Applicant, Vacancy
 from aiogram.types.callback_query import CallbackQuery
 from lib.bot_dispatcher import applicant_bot
 from cfg.messages import MESSAGES
 
 
 async def applicant_respond_callback(callback_query: CallbackQuery):
-    vacanse_id = callback_query.data.split()[1]
+    vacancy_id = callback_query.data.split()[1]
 
     # await applicant_bot.answer_callback_query(
     #     callback_query.id,
     #     text=MESSAGES['response_registred'],
     #     show_alert=False)
 
-    vacanse = Vacanse.find_by_id(vacanse_id)
+    vacancy = Vacancy.find_by_id(vacancy_id)
 
     # TODO check not responsed eat
 
     from dialogs.respond_dialog import RespondDialog
     await RespondDialog.begin(
         chat_id=callback_query.from_user.id,
-        config=vacanse.questions + [{
+        config=vacancy.questions + [{
             'name': 'video',
             'text': MESSAGES['upload_video'],
             'type': 'video'
         }],
-        vacanse_id=vacanse_id
+        vacancy_id=vacancy_id
     )
 
     # await bot.send_message(callback_query.from_user.id, callback_query.data)
