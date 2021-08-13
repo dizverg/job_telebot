@@ -15,7 +15,7 @@ async def applicant_respond_callback(callback_query: CallbackQuery):
     #     show_alert=False)
 
     vacanse = Vacanse.find_by_id(vacanse_id)
-    
+
     # TODO check not responsed eat
 
     from dialogs.respond_dialog import RespondDialog
@@ -35,7 +35,6 @@ async def applicant_respond_callback(callback_query: CallbackQuery):
 async def hr_respond_callback(callback_query: CallbackQuery):
     _, applicant_id = callback_query.data.split()
     Applicant().update(applicant_id, {'accepted': False})
-
 
     await callback_query.message.delete()
     await callback_query.answer('Отклонено')

@@ -5,7 +5,7 @@ from aiogram.types.message import Message
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types.reply_keyboard import ReplyKeyboardMarkup, ReplyKeyboardRemove
 
-from cfg.config import CHANEL_ID, HR_ID
+from cfg.config import CHANNEL_ID, HR_ID
 from cfg.messages import MESSAGES
 from lib.base_dialog import AuthMixin, BaseDialog
 from lib.bot_dispatcher import bot_dispatcher, applicant_bot

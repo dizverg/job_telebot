@@ -5,7 +5,7 @@ from aiogram.types.message import Message
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types.reply_keyboard import ReplyKeyboardMarkup, ReplyKeyboardRemove
 
-from cfg.config import CHANEL_ID
+from cfg.config import CHANNEL_ID
 from cfg.messages import MESSAGES
 from lib.base_dialog import AuthMixin, BaseDialog
 from lib.bot_dispatcher import bot_dispatcher, applicant_bot
@@ -99,7 +99,7 @@ class PublisherDialog(BaseDialog, AuthMixin):
 
         # publishing to chanel
         await applicant_bot.send_photo(
-            CHANEL_ID,
+            CHANNEL_ID,
             photo=await message.bot.download_file_by_id(file_id),
             caption=vacanse.get_discription() or '-',
             reply_markup=InlineKeyboardMarkup().add(
