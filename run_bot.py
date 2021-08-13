@@ -1,7 +1,7 @@
 from aiogram.dispatcher.storage import FSMContext
 from aiogram.types.callback_query import CallbackQuery
 from aiogram.types.message import ContentTypes, Message
-from cfg.main_menu import DEFAULT_MENU, PUBLISHER_MENU
+from cfg.main_menu import DEFAULT_MENU, PUBLISHER_MENU, APPLICANT_MENU
 import logging
 from aiogram.utils import executor
 
@@ -73,6 +73,8 @@ if __name__ == '__main__':
         bot_dispatcher.register_callback_query_handler(
             hr_respond_callback,
             lambda query: query.data.startswith('reject'), state="*")
+
+        register_main_menu_handlers(APPLICANT_MENU)
 
     register_main_menu_handlers(DEFAULT_MENU)
 

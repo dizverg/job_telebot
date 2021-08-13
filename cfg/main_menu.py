@@ -67,12 +67,17 @@ PUBLISHER_MENU = {
                    'action': list_waiting_applicants},
 }
 
-DEFAULT_MENU = {
-    'stat': {'title': 'Статистика', 'action': show_stat},
+DEFAULT_MENU = dict()
+
+
+async def applicant_start(message: Message, state: FSMContext):
+    await message.answer(MESSAGES['applicant_start'], reply_markup=ReplyKeyboardRemove())
+
+
+APPLICANT_MENU = {
+    'start': {'title': 'Начать', 'action': applicant_start},
+    'help': {'title': 'Справка', 'action': applicant_start},
     'vacancy': {'title': 'Просмотреть вакансии',
                 'action': list_vacancies},
     # 'help': {'title': 'Справка', 'action': show_help},
 }
-
-# async def show_help(message: Message, state: FSMContext):
-#     await message.answer(MESSAGES['help'], reply_markup=ReplyKeyboardRemove())

@@ -3,6 +3,7 @@ bad_answer_message = 'Ответ не соответствует формату.
 
 
 MESSAGES = {
+    'applicant_start': '/vacancy -- актуальные вакансии',
     # 'start': start_message,
     # 'help': '\n'.join([f'/{key} -- {value.get("title","")}'
     #                    for key, value in MAIN_MENU.items()]),
