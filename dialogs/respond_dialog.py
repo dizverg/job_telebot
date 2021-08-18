@@ -1,9 +1,11 @@
 from io import BytesIO
-from aiogram.types.inline_keyboard import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types.inline_keyboard import InlineKeyboardButton, \
+    InlineKeyboardMarkup
 from aiogram.dispatcher.storage import FSMContext
 from aiogram.types.message import Message
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.types.reply_keyboard import ReplyKeyboardMarkup, ReplyKeyboardRemove
+from aiogram.types.reply_keyboard import ReplyKeyboardMarkup, \
+    ReplyKeyboardRemove
 
 from cfg.config import CHANNEL_ID, HR_ID
 from cfg.messages import MESSAGES
@@ -50,7 +52,7 @@ class RespondDialog(BaseDialog, AuthMixin):
 
     @staticmethod
     async def get_video_answer(message: Message, state: FSMContext):
-        file_id = message.video.file_id
+        file_id = message.video_note.file_id
 
         data = await state.get_data()
 
@@ -72,17 +74,21 @@ class RespondDialog(BaseDialog, AuthMixin):
 
         applicant.add()
 
-        await message.answer_video(video=file_id, caption=answers,
-                                   reply_markup=ReplyKeyboardRemove())
+        await message.answer_video_note(
+            video_note=file_id, reply_markup=ReplyKeyboardRemove())
+        if answers:
+            await message.answer(answers)
 
         show_user_link_callback_data = (f'show_user_link '
                                         f'{message.from_user.id} '
                                         # f'{message.from_user.full_name} '
                                         f'{applicant.id} ')
-        await message.bot.send_video(
-            HR_ID,
-            video=await message.bot.download_file_by_id(file_id),
-            caption=answers,
+
+        await message.bot.send_video_note(
+            HR_ID, video_note=await message.bot.download_file_by_id(file_id))
+
+        await message.bot.send_message(
+            HR_ID, answers or '-',
             reply_markup=InlineKeyboardMarkup().add(
                 InlineKeyboardButton(
                     MESSAGES['show_user_link'],
@@ -90,13 +96,8 @@ class RespondDialog(BaseDialog, AuthMixin):
                 InlineKeyboardButton(
                     MESSAGES['reject'],
                     callback_data=f'reject {applicant.id}')),
-
-            parse_mode="Markdown"
-        )
+            parse_mode="Markdown")
 
         await message.answer(
             text=MESSAGES['response_registered']
         )
-        # await message.bot.send_message(HR_ID,
-        #                           '[User](tg://user?id=275875419)',
-        #                           parse_mode="Markdown")

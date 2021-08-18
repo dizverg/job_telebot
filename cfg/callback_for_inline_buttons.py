@@ -15,14 +15,14 @@ async def applicant_respond_callback(callback_query: CallbackQuery):
     #     text=MESSAGES['response_registered'],
     #     show_alert=False)
 
-    vacancy = Vacancy.find_by_id(vacancy_id)
+
 
     # TODO check not response
 
     from dialogs.respond_dialog import RespondDialog
     await RespondDialog.begin(
         chat_id=callback_query.from_user.id,
-        config=(vacancy.questions or []) + [{
+        config=(Vacancy.find_by_id(vacancy_id).questions or []) + [{
             'name': 'video',
             'text': MESSAGES['upload_video'],
             'type': 'video'

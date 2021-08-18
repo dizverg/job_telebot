@@ -10,7 +10,7 @@ LOG = {'format': "%(asctime)s - [%(levelname)s] - %(name)s - "
                  "(%(filename)s).%(funcName)s(%(lineno)d) - %(message)s",
        'level': logging.INFO}
 
-CHANNEL_ID = -1001568792005
+CHANNEL_ID = -1001448212116
 HR_ID = -1001347207892
 
 

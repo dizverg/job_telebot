@@ -1,16 +1,17 @@
 from io import BytesIO
-from aiogram.types.inline_keyboard import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types.inline_keyboard import InlineKeyboardButton, \
+    InlineKeyboardMarkup
 from aiogram.dispatcher.storage import FSMContext
 from aiogram.types.message import Message
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.types.reply_keyboard import ReplyKeyboardMarkup, ReplyKeyboardRemove
+from aiogram.types.reply_keyboard import ReplyKeyboardMarkup, \
+    ReplyKeyboardRemove
 
 from cfg.config import CHANNEL_ID
 from cfg.messages import MESSAGES
 from lib.base_dialog import AuthMixin, BaseDialog
 from lib.bot_dispatcher import bot_dispatcher, applicant_bot
 from models import Vacancy
-
 
 publisher_dialog_cfg = {
     'questions': {
@@ -88,7 +89,7 @@ class PublisherDialog(BaseDialog, AuthMixin):
         questions = data.get('questions')
 
         vacancy = Vacancy(photo=file_id, descriptions=descriptions,
-                          questions=questions,  user_id=user_id)
+                          questions=questions, user_id=user_id)
 
         if file_id or descriptions or questions:
             vacancy.add()
@@ -98,10 +99,11 @@ class PublisherDialog(BaseDialog, AuthMixin):
                                    reply_markup=ReplyKeyboardRemove())
 
         # publishing to channel
-        # await applicant_bot.send_photo(
-        #     CHANNEL_ID,
-        #     photo=await message.bot.download_file_by_id(file_id),
-        #     caption=vacancy.get_description() or '-',
-        #     reply_markup=InlineKeyboardMarkup().add(
-        #         InlineKeyboardButton(MESSAGES['response'],
-        #         callback_data=f'respond {vacancy.id}')))
+        await applicant_bot.send_photo(
+            CHANNEL_ID,
+            photo=await message.bot.download_file_by_id(file_id),
+            caption=vacancy.get_description() or '-',
+            reply_markup=InlineKeyboardMarkup().add(
+                InlineKeyboardButton(
+                    MESSAGES['go_to_bot'],
+                    url=f'https://t.me/jober_bober_bot?start={vacancy.id}')))

@@ -1,5 +1,6 @@
 from aiogram.dispatcher import FSMContext
-from aiogram.types import Message, ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import Message, ReplyKeyboardRemove, InlineKeyboardMarkup, \
+    InlineKeyboardButton
 from aiogram.types.reply_keyboard import KeyboardButton, ReplyKeyboardMarkup
 
 from cfg.messages import MESSAGES
@@ -8,6 +9,7 @@ from lib.bot_dispatcher import publisher_bot
 from models import Applicant
 from models import Vacancy
 from dialogs.publisher_dialog import PublisherDialog
+from dialogs.respond_dialog import RespondDialog
 
 
 async def publish(message: Message, state: FSMContext):
@@ -22,7 +24,8 @@ async def list_published(message: Message, state: FSMContext):
 
 
 async def list_vacancies(message: Message, state: FSMContext):
-    applicants = Applicant.filter_by(user_id=AuthMixin.get_user_id(message.from_user)).all()
+    applicants = Applicant.filter_by(
+        user_id=AuthMixin.get_user_id(message.from_user)).all()
     used_vacancies = [applicant.vacancy_id for applicant in applicants]
     for vacancy in Vacancy.filter(Vacancy.id not in used_vacancies).all():
         if vacancy.id in used_vacancies:
@@ -35,10 +38,10 @@ async def list_vacancies(message: Message, state: FSMContext):
                 InlineKeyboardButton(MESSAGES['response'],
                                      callback_data=f'respond {vacancy.id}')))
 
-        #
-        # await message.answer_photo(photo=await publisher_bot.download_file_by_id(vacancy.photo),
-        #                            caption=vacancy,
-        #                            reply_markup=ReplyKeyboardRemove())
+        # await message.answer_photo(
+        #     photo=await publisher_bot.download_file_by_id(vacancy.photo),
+        #     caption=vacancy,
+        #     reply_markup=ReplyKeyboardRemove())
 
 
 async def list_waiting_applicants(message: Message, state: FSMContext):
@@ -72,16 +75,32 @@ PUBLISHER_MENU = {
                    'action': list_waiting_applicants},
 }
 
-DEFAULT_MENU = dict()
-
 
 async def applicant_start(message: Message, state: FSMContext):
-    await message.answer(MESSAGES['applicant_start'], reply_markup=ReplyKeyboardRemove())
+    data = message.text.split()
+    vacancy_id = data[1] if len(data)>1 else None
+    if vacancy_id:
+        await message.answer(vacancy_id,
+                             reply_markup=ReplyKeyboardRemove())
+
+
+        await RespondDialog.begin(
+            chat_id=message.from_user.id,
+            config=(Vacancy.find_by_id(vacancy_id).questions or []) + [{
+                'name': 'video',
+                'text': MESSAGES['upload_video'],
+                'type': 'video'
+            }],
+            vacancy_id=vacancy_id
+        )
+    else:
+        await message.answer(MESSAGES['applicant_start'],
+                             reply_markup=ReplyKeyboardRemove())
 
 
 APPLICANT_MENU = {
     'start': {'title': 'Начать', 'action': applicant_start},
-    'help': {'title': 'Справка', 'action': applicant_start},
+    # 'help': {'title': 'Справка', 'action': applicant_start},
     'vacancy': {'title': 'Просмотреть вакансии',
                 'action': list_vacancies},
     # 'help': {'title': 'Справка', 'action': show_help},
