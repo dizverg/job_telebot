@@ -26,9 +26,13 @@ publisher_dialog_cfg = {
         'questions': {
             'text': 'Задайте вопрос соискателю',
             'loop_stop_word': 'Достаточно вопросов'
+        },
+        'hr': {
+            'text': 'Кто HR?',
+            'type': 'contact',
         }
     },
-    'order': ['description', 'questions', 'photo', ]
+    'order': ['description', 'questions', 'photo', 'hr']
 }
 
 
@@ -39,8 +43,8 @@ class PublisherDialog(BaseDialog, AuthMixin):
         photo = State()
 
     @classmethod
-    async def begin(cls, chat_id):
-        await super().begin(chat_id, publisher_dialog_cfg)
+    async def begin(cls, chat_id, **kwargs):
+        await BaseDialog.begin(chat_id, publisher_dialog_cfg, **kwargs)
 
     @classmethod
     async def get_text_answer(cls, message: Message, state: FSMContext):

@@ -1,10 +1,11 @@
 import abc
-from abc import abstractclassmethod
+
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram import types
+
 from aiogram.dispatcher import FSMContext
 from aiogram.types import Message
-from aiogram.types.reply_keyboard import ReplyKeyboardMarkup, ReplyKeyboardRemove
+from aiogram.types.reply_keyboard import ReplyKeyboardMarkup, \
+    ReplyKeyboardRemove
 
 from models import UserList
 from lib.bot_dispatcher import bot_dispatcher
@@ -22,10 +23,10 @@ class DialogInterface:
     async def ask(cls, chat_id, question_number):
         ...
 
-    @staticmethod
-    @abc.abstractmethod
-    async def on_get_answer(cls, message: Message, state: FSMContext):
-        ...
+    # @staticmethod
+    # @abc.abstractmethod
+    # async def on_get_answer(cls, message: Message, state: FSMContext):
+    #     ...
 
     @staticmethod
     @abc.abstractmethod
@@ -34,8 +35,6 @@ class DialogInterface:
 
 
 class BaseDialog(DialogInterface):
-    __abstract__ = True
-
     class States(StatesGroup):
         state = State()
 
@@ -104,10 +103,10 @@ class BaseDialog(DialogInterface):
         # # if not loop_stop_word or loop_stop_word == answer:
 
         # if message.photo:
-        #     await state.update_data({field_name + '_photo': message.photo[-1]})
+        #    await state.update_data({field_name + '_photo': message.photo[-1]})
 
         # if message.video:
-        #     await state.update_data({field_name + '_video': message.video[-1]})
+        #    await state.update_data({field_name + '_video': message.video[-1]})
 
         # if loop_stop_word != text:
         #     await state.update_data({field_name: field_value + [text]})

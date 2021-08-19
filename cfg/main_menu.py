@@ -62,7 +62,7 @@ async def show_stat(message: Message, state: FSMContext):
         f"Одобрено: {accepted_count}\n"
         f"Отклонено: {rejected_count}\n"
         f"В ожидании: {waiting_count}\n",
-        # reply_markup=inline_kb1
+        # reply_markup=markup_request
         reply_markup=ReplyKeyboardRemove()
     )
 
@@ -73,32 +73,35 @@ PUBLISHER_MENU = {
     'publish': {'title': 'Опубликовать вакансию', 'action': publish},
     'applicants': {'title': 'Соискатили в ожидании ответа',
                    'action': list_waiting_applicants},
+    'stat': {'title': 'Статистика', 'action': show_stat},
+
 }
 
 
 async def applicant_start(message: Message, state: FSMContext):
     data = message.text.split()
-    vacancy_id = data[1] if len(data)>1 else None
+    vacancy_id = data[1] if len(data) > 1 else None
     if vacancy_id:
         vacancy = Vacancy.find_by_id(vacancy_id)
 
-        await message.answer(vacancy_id,
-                             reply_markup=ReplyKeyboardRemove())
+        # await message.answer(vacancy_id,
+        #                      reply_markup=ReplyKeyboardRemove())
         await message.bot.send_photo(
             chat_id=message.chat.id,
             photo=await publisher_bot.download_file_by_id(vacancy.photo),
             caption=vacancy.get_description() or '-',
-            reply_markup=InlineKeyboardMarkup().add(
-                InlineKeyboardButton(MESSAGES['response'],
-                                     callback_data=f'respond {vacancy.id}')))
+            reply_markup=ReplyKeyboardRemove()
+        )
 
         await RespondDialog.begin(
             chat_id=message.from_user.id,
-            config=(vacancy.questions or []) + [{
-                'name': 'video',
-                'text': MESSAGES['upload_video'],
-                'type': 'video'
-            }],
+            config=(vacancy.questions or []) + [
+                {
+                    'name': 'video_note',
+                    'text': MESSAGES['upload_video'],
+                    'type': 'video_note'
+                }
+            ],
             vacancy_id=vacancy_id
         )
     else:
@@ -112,4 +115,6 @@ APPLICANT_MENU = {
     'vacancy': {'title': 'Просмотреть вакансии',
                 'action': list_vacancies},
     # 'help': {'title': 'Справка', 'action': show_help},
+    'stat': {'title': 'Статистика', 'action': show_stat},
+
 }

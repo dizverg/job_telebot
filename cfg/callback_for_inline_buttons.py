@@ -46,12 +46,12 @@ async def show_user_link_respond_callback(callback_query: CallbackQuery):
     _, user_id, applicant_id = callback_query.data.split()
     md_user_caption = f'[Кандидат ]'
     message = callback_query.message
-    if not message.caption or not message.md_text.startswith(md_user_caption):
+    if not message.text or not message.md_text.startswith(md_user_caption):
         Applicant().update(applicant_id, {'accepted': True})
-        await message.edit_caption(
+        await message.edit_text(
             md_user_caption +
             f'(tg://user?id={user_id})' +
-            f'\n\n{message.caption or ""}',
+            f'\n\n{message.text or ""}',
             parse_mode='Markdown',
             # reply_markup=ReplyKeyboardRemove()
             # InlineKeyboardMarkup().add(
