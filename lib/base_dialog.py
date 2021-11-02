@@ -55,7 +55,7 @@ class BaseDialog(DialogInterface):
         config = cls.prepare_config(config)
 
         state = cls.get_current_state(chat_id)
-        await state.set_state(await cls.States.first())
+        await state.set_state(kwargs.get('state', await cls.States.first()))
 
         await state.update_data({
             'config': config,

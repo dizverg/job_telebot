@@ -44,7 +44,9 @@ class PublisherDialog(BaseDialog, AuthMixin):
 
     @classmethod
     async def begin(cls, chat_id, **kwargs):
-        await BaseDialog.begin(chat_id, publisher_dialog_cfg, **kwargs)
+        await BaseDialog.begin(
+            chat_id, publisher_dialog_cfg, state=await cls.States.first(),
+            **kwargs)
 
     @classmethod
     async def get_text_answer(cls, message: Message, state: FSMContext):

@@ -3,8 +3,10 @@ import sys
 
 from cfg.private_token import tokens, DB_Private
 
+DEV = True
 MODE = sys.argv[1] if len(sys.argv) > 1 else None
-TOKEN = tokens.get(MODE or list(tokens)[0])
+TOKENS = tokens['dev' if DEV else 'prod']
+TOKEN = TOKENS.get(MODE)
 
 LOG = {'format': "%(asctime)s - [%(levelname)s] - %(name)s - "
                  "(%(filename)s).%(funcName)s(%(lineno)d) - %(message)s",
